@@ -49,9 +49,10 @@ h1 {
 }
 
 .description {
-  margin: 0 0 24px;
+  margin: 0 0 16px;
   color: #d1d5db;
   font-size: 1.05rem;
+  max-width: 420px;
 }
 
 .game-layout {
@@ -64,6 +65,9 @@ h1 {
 .play-panel,
 .info-panel {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .game-shell {
