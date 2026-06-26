@@ -9,22 +9,54 @@
   <body>
     <main class="game-page">
       <section class="game-screen">
-        <p class="eyebrow">ゲーム画面</p>
-        <h1>ブロック崩し</h1>
-        <p class="description">
-          スペースキーで球を発射し、矢印キーで板を左右に動かして、上のブロックをすべて崩しましょう。
-        </p>
-
-        <div class="game-shell">
-          <div class="hud" aria-live="polite">
-            <span id="score">スコア: 0</span>
-            <span id="status">スペースでスタート</span>
-            <span id="lives">残機: 3</span>
+        <div class="game-layout">
+          <div class="play-panel">
+            <div class="game-shell">
+              <canvas id="gameCanvas" width="480" height="560" aria-label="ブロック崩しゲーム"></canvas>
+            </div>
           </div>
-          <canvas id="gameCanvas" width="480" height="560" aria-label="ブロック崩しゲーム"></canvas>
-        </div>
 
-        <a class="secondary-button" href="index.html">トップに戻る</a>
+          <div class="info-panel">
+            <p class="eyebrow">ゲーム画面</p>
+            <h1>BreakSphere</h1>
+            <p class="description">
+              スペースキーで球を発射し、矢印キーで板を左右に動かして、上のブロックをすべて崩しましょう。
+            </p>
+
+            <div class="hud" aria-live="polite">
+              <span id="score">スコア: 0</span>
+              <span id="status">スペースでスタート</span>
+              <span id="lives">残機: 3</span>
+            </div>
+
+            <div class="item-legend" aria-label="アイテム一覧">
+              <h2>アイテム</h2>
+              <div class="legend-item">
+                <span class="legend-icon extra-ball"></span>
+                <div>
+                  <strong>Extra Ball</strong>
+                  <p>球を1個追加します。</p>
+                </div>
+              </div>
+              <div class="legend-item">
+                <span class="legend-icon piercing"></span>
+                <div>
+                  <strong>Piercing Ball</strong>
+                  <p>球がブロックを貫通します。</p>
+                </div>
+              </div>
+              <div class="legend-item">
+                <span class="legend-icon life"></span>
+                <div>
+                  <strong>1UP</strong>
+                  <p>残機を1個増やします。</p>
+                </div>
+              </div>
+            </div>
+
+            <a class="secondary-button" href="index.html">トップに戻る</a>
+          </div>
+        </div>
       </section>
     </main>
 
