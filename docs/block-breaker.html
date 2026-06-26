@@ -47,6 +47,7 @@
         gameOver: false,
         won: false,
         launched: false,
+        piercingActive: false,
       };
 
       const paddle = {
@@ -57,15 +58,9 @@
         speed: 7,
       };
 
-      const ball = {
-        x: 240,
-        y: 470,
-        radius: 6,
-        dx: 3,
-        dy: -3,
-      };
-
+      const balls = [];
       const bricks = [];
+      const items = [];
       const brickSettings = {
         rowCount: 5,
         columnCount: 8,
@@ -76,28 +71,54 @@
         offsetLeft: 24,
       };
 
+      const itemTypes = ["extraBall", "piercing", "life"];
+
+      function createBall() {
+        const ball = {
+          x: paddle.x + paddle.width / 2,
+          y: paddle.y - 6 - 2,
+          radius: 6,
+          dx: (Math.random() > 0.5 ? 1 : -1) * 3,
+          dy: -3,
+          launched: gameState.launched,
+          pierced: gameState.piercingActive,
+          color: gameState.piercingActive ? "#fb923c" : "#fbbf24",
+        };
+
+        if (!gameState.launched) {
+          ball.launched = false;
+        }
+
+        return ball;
+      }
+
+      function resetBalls() {
+        balls.length = 0;
+        const initialBall = createBall();
+        initialBall.launched = false;
+        initialBall.x = paddle.x + paddle.width / 2;
+        initialBall.y = paddle.y - initialBall.radius - 2;
+        initialBall.dx = (Math.random() > 0.5 ? 1 : -1) * 3;
+        initialBall.dy = -3;
+        balls.push(initialBall);
+      }
+
       function createBricks() {
         bricks.length = 0;
         for (let row = 0; row < brickSettings.rowCount; row += 1) {
           for (let col = 0; col < brickSettings.columnCount; col += 1) {
-            bricks.push({
+            const brick = {
               x: col * (brickSettings.width + brickSettings.padding) + brickSettings.offsetLeft,
               y: row * (brickSettings.height + brickSettings.padding) + brickSettings.offsetTop,
               width: brickSettings.width,
               height: brickSettings.height,
               alive: true,
               color: ["#38bdf8", "#22c55e", "#f59e0b", "#f43f5e", "#a78bfa"][row % 5],
-            });
+              itemType: Math.random() < 0.14 ? itemTypes[Math.floor(Math.random() * itemTypes.length)] : null,
+            };
+            bricks.push(brick);
           }
         }
-      }
-
-      function resetBall() {
-        ball.x = paddle.x + paddle.width / 2;
-        ball.y = paddle.y - ball.radius - 2;
-        ball.dx = (Math.random() > 0.5 ? 1 : -1) * 3;
-        ball.dy = -3;
-        gameState.launched = false;
       }
 
       function updateHud() {
@@ -114,9 +135,12 @@
         gameState.lives = 3;
         gameState.gameOver = false;
         gameState.won = false;
+        gameState.launched = false;
+        gameState.piercingActive = false;
+        items.length = 0;
         createBricks();
         paddle.x = 195;
-        resetBall();
+        resetBalls();
         updateHud();
         updateStatus("スペースでスタート");
       }
@@ -128,12 +152,97 @@
           gameState.gameOver = true;
           updateStatus("ゲームオーバー。スペースで再挑戦");
         } else {
-          resetBall();
+          items.length = 0;
+          resetBalls();
           updateStatus("残機が減りました。スペースで再スタート");
         }
       }
 
-      function checkBrickCollision() {
+      function spawnItemFromBrick(brick) {
+        if (!brick.itemType) {
+          return;
+        }
+
+        items.push({
+          x: brick.x + brick.width / 2,
+          y: brick.y + brick.height / 2,
+          width: 20,
+          height: 20,
+          type: brick.itemType,
+          speed: 2.2,
+        });
+      }
+
+      function applyItemEffect(type) {
+        if (type === "extraBall") {
+          const extraBall = createBall();
+          extraBall.launched = gameState.launched;
+          if (gameState.launched) {
+            extraBall.x = paddle.x + paddle.width / 2;
+            extraBall.y = paddle.y - extraBall.radius - 2;
+          } else {
+            extraBall.x = paddle.x + paddle.width / 2;
+            extraBall.y = paddle.y - extraBall.radius - 2;
+            extraBall.launched = false;
+          }
+          balls.push(extraBall);
+          updateStatus("球が1個増えました");
+          return;
+        }
+
+        if (type === "piercing") {
+          gameState.piercingActive = true;
+          balls.forEach((ball) => {
+            ball.pierced = true;
+            ball.color = "#fb923c";
+          });
+          updateStatus("球が貫通モードになりました");
+          return;
+        }
+
+        if (type === "life") {
+          gameState.lives += 1;
+          updateHud();
+          updateStatus("残機が1個増えました");
+        }
+      }
+
+      function updateItems() {
+        for (let i = items.length - 1; i >= 0; i -= 1) {
+          const item = items[i];
+          item.y += item.speed;
+
+          const itemRect = {
+            x: item.x - item.width / 2,
+            y: item.y - item.height / 2,
+            width: item.width,
+            height: item.height,
+          };
+          const paddleRect = {
+            x: paddle.x,
+            y: paddle.y,
+            width: paddle.width,
+            height: paddle.height,
+          };
+
+          if (
+            itemRect.x + itemRect.width >= paddleRect.x &&
+            itemRect.x <= paddleRect.x + paddleRect.width &&
+            itemRect.y + itemRect.height >= paddleRect.y &&
+            itemRect.y <= paddleRect.y + paddleRect.height
+          ) {
+            applyItemEffect(item.type);
+            items.splice(i, 1);
+            continue;
+          }
+
+          if (itemRect.y - itemRect.height > canvas.height) {
+            items.splice(i, 1);
+          }
+        }
+      }
+
+      function checkBrickCollision(ball) {
         for (const brick of bricks) {
           if (!brick.alive) continue;
           if (
@@ -144,6 +253,11 @@
           ) {
             brick.alive = false;
             gameState.score += 100;
+            spawnItemFromBrick(brick);
+            if (ball.pierced) {
+              updateHud();
+              continue;
+            }
             ball.dy *= -1;
             updateHud();
             break;
@@ -170,43 +284,61 @@
         paddle.x = Math.max(0, Math.min(canvas.width - paddle.width, paddle.x));
 
         if (!gameState.launched) {
-          ball.x = paddle.x + paddle.width / 2;
-          ball.y = paddle.y - ball.radius - 2;
+          balls.forEach((ball) => {
+            ball.x = paddle.x + paddle.width / 2;
+            ball.y = paddle.y - ball.radius - 2;
+          });
+          updateItems();
           return;
         }
 
-        ball.x += ball.dx;
-        ball.y += ball.dy;
+        const activeBalls = [];
+        balls.forEach((ball) => {
+          if (!ball.launched) {
+            activeBalls.push(ball);
+            return;
+          }
 
-        if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= canvas.width) {
-          ball.dx *= -1;
-          ball.x = Math.max(ball.radius, Math.min(canvas.width - ball.radius, ball.x));
-        }
+          ball.x += ball.dx;
+          ball.y += ball.dy;
 
-        if (ball.y - ball.radius <= 0) {
-          ball.dy *= -1;
-          ball.y = ball.radius;
-        }
+          if (ball.x - ball.radius <= 0 || ball.x + ball.radius >= canvas.width) {
+            ball.dx *= -1;
+            ball.x = Math.max(ball.radius, Math.min(canvas.width - ball.radius, ball.x));
+          }
 
-        if (
-          ball.y + ball.radius >= paddle.y &&
-          ball.y - ball.radius <= paddle.y + paddle.height &&
-          ball.x + ball.radius >= paddle.x &&
-          ball.x - ball.radius <= paddle.x + paddle.width &&
-          ball.dy > 0
-        ) {
-          ball.dy = -Math.abs(ball.dy);
-          const hitPoint = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
-          ball.dx = hitPoint * 4;
-          ball.y = paddle.y - ball.radius - 1;
-        }
+          if (ball.y - ball.radius <= 0) {
+            ball.dy *= -1;
+            ball.y = ball.radius;
+          }
 
-        if (ball.y - ball.radius > canvas.height) {
+          if (
+            ball.y + ball.radius >= paddle.y &&
+            ball.y - ball.radius <= paddle.y + paddle.height &&
+            ball.x + ball.radius >= paddle.x &&
+            ball.x - ball.radius <= paddle.x + paddle.width &&
+            ball.dy > 0
+          ) {
+            ball.dy = -Math.abs(ball.dy);
+            const hitPoint = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
+            ball.dx = hitPoint * 4;
+            ball.y = paddle.y - ball.radius - 1;
+          }
+
+          if (ball.y - ball.radius > canvas.height) {
+            return;
+          }
+
+          activeBalls.push(ball);
+          checkBrickCollision(ball);
+        });
+
+        balls.splice(0, balls.length, ...activeBalls);
+        if (balls.length === 0) {
           handleLifeLost();
-          return;
         }
 
-        checkBrickCollision();
+        updateItems();
       }
 
       function drawBackground() {
@@ -235,18 +367,59 @@
         ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
       }
 
-      function drawBall() {
-        ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#fbbf24";
-        ctx.fill();
+      function drawBalls() {
+        balls.forEach((ball) => {
+          ctx.beginPath();
+          ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+          ctx.fillStyle = ball.color;
+          ctx.fill();
+        });
+      }
+
+      function drawItems() {
+        items.forEach((item) => {
+          ctx.save();
+          ctx.translate(item.x, item.y);
+          if (item.type === "extraBall") {
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(-10, -10, 20, 20);
+            ctx.fillStyle = "#eff6ff";
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillRect(-1, -8, 2, 16);
+            ctx.fillRect(-8, -1, 16, 2);
+          } else if (item.type === "piercing") {
+            ctx.fillStyle = "#fb923c";
+            ctx.beginPath();
+            ctx.moveTo(0, -10);
+            ctx.lineTo(9, -1);
+            ctx.lineTo(4, -1);
+            ctx.lineTo(10, 10);
+            ctx.lineTo(1, 1);
+            ctx.lineTo(6, 1);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.fillStyle = "#f43f5e";
+            ctx.beginPath();
+            ctx.moveTo(0, -8);
+            ctx.bezierCurveTo(0, -12, 6, -12, 8, -8);
+            ctx.bezierCurveTo(10, -4, 6, 2, 0, 8);
+            ctx.bezierCurveTo(-6, 2, -10, -4, -8, -8);
+            ctx.bezierCurveTo(-6, -12, 0, -12, 0, -8);
+            ctx.fill();
+          }
+          ctx.restore();
+        });
       }
 
       function draw() {
         drawBackground();
         drawBricks();
+        drawItems();
         drawPaddle();
-        drawBall();
+        drawBalls();
       }
 
       function loop() {
@@ -266,6 +439,13 @@
             resetGame();
           } else if (!gameState.launched) {
             gameState.launched = true;
+            balls.forEach((ball) => {
+              if (!ball.launched) {
+                ball.launched = true;
+                ball.dx = (Math.random() > 0.5 ? 1 : -1) * 3;
+                ball.dy = -3;
+              }
+            });
             updateStatus("");
           }
         }
@@ -278,6 +458,7 @@
       });
 
       createBricks();
+      resetBalls();
       updateHud();
       loop();
     </script>
