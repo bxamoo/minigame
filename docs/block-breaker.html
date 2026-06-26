@@ -150,8 +150,10 @@
         updateHud();
         if (gameState.lives <= 0) {
           gameState.gameOver = true;
+          gameState.launched = false;
           updateStatus("ゲームオーバー。スペースで再挑戦");
         } else {
+          gameState.launched = false;
           items.length = 0;
           resetBalls();
           updateStatus("残機が減りました。スペースで再スタート");
