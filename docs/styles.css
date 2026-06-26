@@ -76,7 +76,9 @@ h1 {
 
 .hud {
   display: grid;
-  gap: 8px;
+  grid-template-columns: minmax(92px, auto) minmax(92px, auto) 1fr;
+  gap: 10px;
+  align-items: center;
   margin: 18px 0 16px;
   padding: 12px 14px;
   border-radius: 16px;
@@ -85,6 +87,20 @@ h1 {
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
   font-weight: 700;
   color: #e2e8f0;
+}
+
+.hud-stat,
+.hud-status {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.hud-status {
+  text-align: left;
+  font-size: 0.95rem;
+  color: #fef3c7;
 }
 
 #gameCanvas {

@@ -17,16 +17,19 @@
           </div>
 
           <div class="info-panel">
-            <p class="eyebrow">ゲーム画面</p>
             <h1>BreakSphere</h1>
             <p class="description">
               スペースキーで球を発射し、矢印キーで板を左右に動かして、上のブロックをすべて崩しましょう。
             </p>
 
             <div class="hud" aria-live="polite">
-              <span id="score">スコア: 0</span>
-              <span id="status">スペースでスタート</span>
-              <span id="lives">残機: 3</span>
+              <div class="hud-stat">
+                <span id="score">スコア: 0</span>
+              </div>
+              <div class="hud-stat">
+                <span id="lives">残機: 3</span>
+              </div>
+              <div class="hud-status" id="status">スペースでスタート</div>
             </div>
 
             <div class="item-legend" aria-label="アイテム一覧">
