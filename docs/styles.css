@@ -53,6 +53,32 @@ h1 {
   font-size: 1.05rem;
 }
 
+.game-shell {
+  margin: 24px 0;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+#gameCanvas {
+  width: min(100%, 480px);
+  height: auto;
+  display: block;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  background: #020617;
+}
+
 .game-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -108,20 +134,6 @@ h1 {
   transform: translateY(-2px);
 }
 
-.placeholder-box {
-  display: grid;
-  place-items: center;
-  width: min(100%, 320px);
-  height: 180px;
-  margin: 24px 0;
-  border: 2px dashed #64748b;
-  border-radius: 20px;
-  background: rgba(15, 23, 42, 0.65);
-  color: #e2e8f0;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
 @media (max-width: 700px) {
   body {
     padding: 16px;
@@ -130,6 +142,11 @@ h1 {
   .hero,
   .game-screen {
     padding: 24px;
+  }
+
+  .hud {
+    flex-direction: column;
+    border-radius: 16px;
   }
 
   .game-grid {
