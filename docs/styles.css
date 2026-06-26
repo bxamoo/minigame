@@ -1,0 +1,138 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #f5f7ff;
+  background: linear-gradient(135deg, #111827, #1f2937);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.page,
+.game-page {
+  width: min(960px, 100%);
+}
+
+.hero,
+.game-screen {
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.description {
+  margin: 0 0 24px;
+  color: #d1d5db;
+  font-size: 1.05rem;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.game-card {
+  background: rgba(31, 41, 55, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.game-card h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.game-card p {
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  color: white;
+}
+
+.secondary-button {
+  background: #374151;
+  color: #f9fafb;
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-2px);
+}
+
+.placeholder-box {
+  display: grid;
+  place-items: center;
+  width: min(100%, 320px);
+  height: 180px;
+  margin: 24px 0;
+  border: 2px dashed #64748b;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.65);
+  color: #e2e8f0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 16px;
+  }
+
+  .hero,
+  .game-screen {
+    padding: 24px;
+  }
+
+  .game-grid {
+    grid-template-columns: 1fr;
+  }
+}
