@@ -48,6 +48,9 @@
         won: false,
         launched: false,
         piercingActive: false,
+        fireworksTimer: 0,
+        gameOverTimer: 0,
+        overlayOffset: 0,
       };
 
       const paddle = {
@@ -61,14 +64,16 @@
       const balls = [];
       const bricks = [];
       const items = [];
+      const fireworks = [];
+      const gameOverParticles = [];
       const brickSettings = {
-        rowCount: 5,
-        columnCount: 8,
-        width: 48,
-        height: 20,
-        padding: 8,
+        rowCount: 6,
+        columnCount: 10,
+        width: 36,
+        height: 15,
+        padding: 6,
         offsetTop: 40,
-        offsetLeft: 24,
+        offsetLeft: 16,
       };
 
       const itemTypes = ["extraBall", "piercing", "life"];
@@ -137,7 +142,12 @@
         gameState.won = false;
         gameState.launched = false;
         gameState.piercingActive = false;
+        gameState.fireworksTimer = 0;
+        gameState.gameOverTimer = 0;
+        gameState.overlayOffset = 0;
         items.length = 0;
+        fireworks.length = 0;
+        gameOverParticles.length = 0;
         createBricks();
         paddle.x = 195;
         resetBalls();
@@ -145,13 +155,110 @@
         updateStatus("スペースでスタート");
       }
 
+      function startWinEffect() {
+        gameState.won = true;
+        gameState.launched = false;
+        fireworks.length = 0;
+        updateStatus("クリア！");
+        for (let i = 0; i < 28; i += 1) {
+          fireworks.push({
+            x: 120 + Math.random() * 240,
+            y: 90 + Math.random() * 80,
+            vx: (Math.random() - 0.5) * 3.2,
+            vy: (Math.random() - 0.7) * 3.2,
+            life: 50 + Math.random() * 40,
+            maxLife: 90,
+            size: 2 + Math.random() * 2.5,
+            color: ["#fef3c7", "#fda4af", "#93c5fd", "#86efac", "#fde68a"][Math.floor(Math.random() * 5)],
+          });
+        }
+      }
+
+      function startGameOverEffect() {
+        gameState.gameOver = true;
+        gameState.launched = false;
+        gameOverParticles.length = 0;
+        updateStatus("ゲームオーバー");
+        for (let i = 0; i < 54; i += 1) {
+          gameOverParticles.push({
+            x: canvas.width / 2,
+            y: canvas.height / 2 - 30,
+            vx: (Math.random() - 0.5) * 4.2,
+            vy: (Math.random() - 0.5) * 4.2,
+            life: 45 + Math.random() * 30,
+            maxLife: 75,
+            size: 2 + Math.random() * 3,
+            color: ["#fda4af", "#fb923c", "#fbbf24", "#f8fafc"][Math.floor(Math.random() * 4)],
+          });
+        }
+      }
+
+      function updateEffects() {
+        if (gameState.won) {
+          gameState.fireworksTimer += 1;
+          if (gameState.fireworksTimer % 5 === 0) {
+            for (let i = 0; i < 10; i += 1) {
+              fireworks.push({
+                x: 120 + Math.random() * 240,
+                y: 90 + Math.random() * 80,
+                vx: (Math.random() - 0.5) * 3.2,
+                vy: (Math.random() - 0.7) * 3.2,
+                life: 50 + Math.random() * 40,
+                maxLife: 90,
+                size: 2 + Math.random() * 2.5,
+                color: ["#fef3c7", "#fda4af", "#93c5fd", "#86efac", "#fde68a"][Math.floor(Math.random() * 5)],
+              });
+            }
+          }
+
+          for (let i = fireworks.length - 1; i >= 0; i -= 1) {
+            const particle = fireworks[i];
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += 0.02;
+            particle.life -= 1;
+            if (particle.life <= 0) {
+              fireworks.splice(i, 1);
+            }
+          }
+        }
+
+        if (gameState.gameOver) {
+          gameState.gameOverTimer += 1;
+          gameState.overlayOffset = (Math.random() - 0.5) * 8;
+          if (gameState.gameOverTimer % 3 === 0) {
+            for (let i = 0; i < 6; i += 1) {
+              gameOverParticles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2 - 30,
+                vx: (Math.random() - 0.5) * 4.2,
+                vy: (Math.random() - 0.5) * 4.2,
+                life: 45 + Math.random() * 30,
+                maxLife: 75,
+                size: 2 + Math.random() * 3,
+                color: ["#fda4af", "#fb923c", "#fbbf24", "#f8fafc"][Math.floor(Math.random() * 4)],
+              });
+            }
+          }
+
+          for (let i = gameOverParticles.length - 1; i >= 0; i -= 1) {
+            const particle = gameOverParticles[i];
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += 0.04;
+            particle.life -= 1;
+            if (particle.life <= 0) {
+              gameOverParticles.splice(i, 1);
+            }
+          }
+        }
+      }
+
       function handleLifeLost() {
         gameState.lives -= 1;
         updateHud();
         if (gameState.lives <= 0) {
-          gameState.gameOver = true;
-          gameState.launched = false;
-          updateStatus("ゲームオーバー。スペースで再挑戦");
+          startGameOverEffect();
         } else {
           gameState.launched = false;
           items.length = 0;
@@ -267,13 +374,13 @@
         }
 
         if (bricks.every((brick) => !brick.alive)) {
-          gameState.won = true;
-          updateStatus("クリア！スペースでもう一度");
+          startWinEffect();
         }
       }
 
       function update() {
         if (gameState.gameOver || gameState.won) {
+          updateEffects();
           return;
         }
 
@@ -416,12 +523,58 @@
         });
       }
 
+      function drawEffectsOverlay() {
+        if (gameState.won) {
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          fireworks.forEach((particle) => {
+            const alpha = particle.life / particle.maxLife;
+            ctx.beginPath();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = particle.color;
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.restore();
+
+          ctx.save();
+          ctx.font = "bold 38px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "#fef3c7";
+          ctx.fillText("クリア！", canvas.width / 2, 120);
+          ctx.restore();
+        }
+
+        if (gameState.gameOver) {
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          gameOverParticles.forEach((particle) => {
+            const alpha = particle.life / particle.maxLife;
+            ctx.beginPath();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = particle.color;
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.restore();
+
+          ctx.save();
+          ctx.translate(gameState.overlayOffset, 0);
+          ctx.font = "bold 42px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "#fda4af";
+          ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+          ctx.restore();
+        }
+      }
+
       function draw() {
         drawBackground();
         drawBricks();
         drawItems();
         drawPaddle();
         drawBalls();
+        drawEffectsOverlay();
       }
 
       function loop() {
