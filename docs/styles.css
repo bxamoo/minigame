@@ -75,10 +75,9 @@ h1 {
 }
 
 .hud {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(110px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: stretch;
   margin: 18px 0 16px;
   padding: 12px 14px;
   border-radius: 16px;
@@ -89,10 +88,17 @@ h1 {
   color: #e2e8f0;
 }
 
+.hud-row {
+  display: grid;
+  grid-template-columns: 120px minmax(160px, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
 .hud-stat,
 .hud-status {
-  min-width: 110px;
-  min-height: 46px;
+  width: 120px;
+  height: 46px;
   padding: 8px 10px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.06);
@@ -100,11 +106,22 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .hud-status {
+  width: min(100%, 220px);
+  height: 46px;
   font-size: 0.95rem;
   color: #fef3c7;
+  justify-content: flex-start;
+  padding-left: 12px;
+  text-align: left;
+}
+
+.hud-status-secondary {
+  color: #cbd5e1;
 }
 
 #gameCanvas {
