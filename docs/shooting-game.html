@@ -160,6 +160,8 @@
           y: -30,
           width: 42,
           height: 28,
+          hp: 5,
+          maxHp: 5,
           speed: 1.2 + Math.random() * 1.1,
           drift: (Math.random() - 0.5) * 0.6,
           pattern,
@@ -331,34 +333,52 @@
               bullet.y + bullet.height > enemy.y &&
               bullet.y < enemy.y + enemy.height
             ) {
-              enemies.splice(j, 1);
-              gameState.score += 100;
-              gameState.enemiesDefeated += 1;
-              updateHud();
-              spawnExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, "#fbbf24");
-              if (Math.random() < 0.18) {
-                const types = ["spread","pierce","life","power"];const itemType = types[Math.floor(Math.random()*types.length)];
-                spawnItem(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, itemType);
-              }
-              if (!bullet.pierce) {
-                bullets.splice(i, 1);
-              } else {
-                bullet.piercesLeft -= 1;
-                if (bullet.piercesLeft <= 0) {
-                  bullets.splice(i, 1);
-                }
-              }
-              hitEnemy = true;
-              break;
-            }
-          }
+                enemy.hp -= bullet.damage;
+                if (enemy.hp <= 0) {
+                    enemies.splice(j, 1);
 
-          if (hitEnemy) {
+                    gameState.score += 100;
+                    gameState.enemiesDefeated++;
+
+                    updateHud();
+
+                    spawnExplosion(
+                        enemy.x + enemy.width / 2,
+                        enemy.y + enemy.height / 2,
+                        "#fbbf24"
+                    );
+
+                    if (Math.random() < 0.18) {
+                        const types = ["spread","pierce","life","power"];
+                        const itemType =
+                            types[Math.floor(Math.random()*types.length)];
+
+                        spawnItem(
+                            enemy.x + enemy.width / 2,
+                            enemy.y + enemy.height / 2,
+                            itemType
+                        );
+                    }
+                }
+
+                if (!bullet.pierce) {
+                    bullets.splice(i, 1);
+                } else {
+                    bullet.piercesLeft--;
+                    if (bullet.piercesLeft <= 0) {
+                        bullets.splice(i, 1);
+                    }
+                }
+
+                hitEnemy = true;
+                break;
+              }
+            }
+            if (hitEnemy) {
             continue;
           }
         }
       }
-
       function updateItems() {
         for (let i = items.length - 1; i >= 0; i -= 1) {
           const item = items[i];
@@ -608,6 +628,18 @@
         ctx.fillRect(-7, -2, 14, 10);
         ctx.fillStyle = "#0f172a";
         ctx.fillRect(-3, 0, 6, 8);
+        // ===== HPゲージ =====
+        // 枠
+        ctx.fillStyle = "#444";
+        ctx.fillRect(-16, -22, 32, 4);
+        // HP
+        ctx.fillStyle = "#22c55e";
+        ctx.fillRect(
+            -16,
+            -22,
+            32 * (enemy.hp / enemy.maxHp),
+            4
+        );
         ctx.restore();
       }
 
@@ -794,10 +826,10 @@
 
       function draw() {
         drawBackground();
-        drawItems();
         drawBossBullets();
         enemies.forEach(drawEnemy);
         drawBullets();
+        drawItems();
         drawBoss();
         drawParticles();
         drawPlayer();
