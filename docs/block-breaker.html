@@ -49,6 +49,20 @@
                 </div>
               </div>
               <div class="legend-item">
+                <span class="legend-icon paddle-grow" aria-label="板拡大アイコン"></span>
+                <div>
+                  <strong>Big Paddle</strong>
+                  <p>板のサイズを少し大きくします。</p>
+                </div>
+              </div>
+              <div class="legend-item">
+                <span class="legend-icon paddle-shrink" aria-label="板縮小アイコン"></span>
+                <div>
+                  <strong>Small Paddle</strong>
+                  <p>板のサイズを少し小さくします。</p>
+                </div>
+              </div>
+              <div class="legend-item">
                 <span class="legend-icon life" aria-label="残機増加アイコン"></span>
                 <div>
                   <strong>1UP</strong>
@@ -94,6 +108,7 @@
         width: 90,
         height: 14,
         speed: 7,
+        baseWidth: 90,
       };
 
       const balls = [];
@@ -111,7 +126,7 @@
         offsetLeft: 16,
       };
 
-      const itemTypes = ["extraBall", "piercing", "life"];
+      const itemTypes = ["extraBall", "piercing", "paddleGrow", "paddleShrink", "life"];
 
       function createBall() {
         const ball = {
@@ -185,6 +200,7 @@
         gameOverParticles.length = 0;
         createBricks();
         paddle.x = 195;
+        paddle.width = paddle.baseWidth;
         resetBalls();
         updateHud();
         updateStatus("スペースでスタート");
@@ -341,6 +357,18 @@
             ball.color = "#fb923c";
           });
           updateStatus("球が貫通モードになりました");
+          return;
+        }
+
+        if (type === "paddleGrow") {
+          paddle.width = Math.min(paddle.width + 16, 120);
+          updateStatus("板が少し大きくなりました");
+          return;
+        }
+
+        if (type === "paddleShrink") {
+          paddle.width = Math.max(paddle.width - 16, 60);
+          updateStatus("板が少し小さくなりました");
           return;
         }
 
@@ -544,6 +572,17 @@
             ctx.lineTo(6, 1);
             ctx.closePath();
             ctx.fill();
+          } else if (item.type === "paddleGrow") {
+            ctx.fillStyle = "#22c55e";
+            ctx.fillRect(-10, -5, 20, 10);
+            ctx.fillStyle = "#f0fdf4";
+            ctx.fillRect(-1, -8, 2, 16);
+            ctx.fillRect(-8, -1, 16, 2);
+          } else if (item.type === "paddleShrink") {
+            ctx.fillStyle = "#f97316";
+            ctx.fillRect(-10, -5, 20, 10);
+            ctx.fillStyle = "#fff7ed";
+            ctx.fillRect(-8, -1, 16, 2);
           } else {
             ctx.fillStyle = "#f43f5e";
             ctx.beginPath();
