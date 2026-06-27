@@ -105,6 +105,7 @@
         fireworksTimer: 0,
         gameOverTimer: 0,
         overlayOffset: 0,
+        collectedItems: [],
       };
 
       const paddle = {
@@ -190,6 +191,29 @@
         statusEl.textContent = text;
       }
 
+      function updateItemInventory() {
+        const secondaryStatus = document.querySelector(".hud-status-secondary");
+        if (!secondaryStatus) {
+          return;
+        }
+
+        if (gameState.collectedItems.length === 0) {
+          secondaryStatus.textContent = "準備中";
+          return;
+        }
+
+        const icons = gameState.collectedItems.map((item) => {
+          if (item === "extraBall") return "●";
+          if (item === "piercing") return "⬢";
+          if (item === "paddleGrow") return "＋";
+          if (item === "paddleShrink") return "－";
+          if (item === "life") return "♥";
+          return "•";
+        });
+
+        secondaryStatus.textContent = icons.join(" ");
+      }
+
       function resetGame() {
         gameState.score = 0;
         gameState.lives = 3;
@@ -200,6 +224,7 @@
         gameState.fireworksTimer = 0;
         gameState.gameOverTimer = 0;
         gameState.overlayOffset = 0;
+        gameState.collectedItems = [];
         items.length = 0;
         fireworks.length = 0;
         gameOverParticles.length = 0;
@@ -209,6 +234,7 @@
         resetBalls();
         updateHud();
         updateStatus("スペースでスタート");
+        updateItemInventory();
       }
 
       function startWinEffect() {
@@ -340,6 +366,9 @@
 
       function applyItemEffect(type) {
         if (type === "extraBall") {
+          if (!gameState.collectedItems.includes("extraBall")) {
+            gameState.collectedItems.push("extraBall");
+          }
           const extraBall = createBall();
           extraBall.launched = gameState.launched;
           if (gameState.launched) {
@@ -352,35 +381,52 @@
           }
           balls.push(extraBall);
           updateStatus("球が1個増えました");
+          updateItemInventory();
           return;
         }
 
         if (type === "piercing") {
+          if (!gameState.collectedItems.includes("piercing")) {
+            gameState.collectedItems.push("piercing");
+          }
           gameState.piercingActive = true;
           balls.forEach((ball) => {
             ball.pierced = true;
             ball.color = "#fb923c";
           });
           updateStatus("球が貫通モードになりました");
+          updateItemInventory();
           return;
         }
 
         if (type === "paddleGrow") {
+          if (!gameState.collectedItems.includes("paddleGrow")) {
+            gameState.collectedItems.push("paddleGrow");
+          }
           paddle.width = Math.min(paddle.width + 16, 120);
           updateStatus("板が少し大きくなりました");
+          updateItemInventory();
           return;
         }
 
         if (type === "paddleShrink") {
+          if (!gameState.collectedItems.includes("paddleShrink")) {
+            gameState.collectedItems.push("paddleShrink");
+          }
           paddle.width = Math.max(paddle.width - 16, 60);
           updateStatus("板が少し小さくなりました");
+          updateItemInventory();
           return;
         }
 
         if (type === "life") {
+          if (!gameState.collectedItems.includes("life")) {
+            gameState.collectedItems.push("life");
+          }
           gameState.lives += 1;
           updateHud();
           updateStatus("残機が1個増えました");
+          updateItemInventory();
         }
       }
 
