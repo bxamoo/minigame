@@ -154,16 +154,16 @@
 
       function spawnEnemy() {
         const pattern = Math.random() < 0.4 ? "swoop" : Math.random() < 0.7 ? "spiral" : "straight";
-        const amplitude = 8 + Math.random() * 16;
+        const amplitude = 4 + Math.random() * 8;
         enemies.push({
           x: Math.random() * (canvas.width - 46),
           y: -30,
           width: 42,
           height: 28,
-          hp: 5,
-          maxHp: 5,
-          speed: 1.2 + Math.random() * 1.1,
-          drift: (Math.random() - 0.5) * 0.6,
+          hp: 3,
+          maxHp: 3,
+          speed: 1.0 + Math.random() * 0.8,
+          drift: (Math.random() - 0.5) * 0.2,
           pattern,
           phase: Math.random() * Math.PI * 2,
           amplitude,
@@ -177,8 +177,8 @@
         boss = {
           x: canvas.width / 2 - 54,
           y: 70,
-          width: 108,
-          height: 64,
+          width: 130,
+          height: 90,
           vx: 1.4,
           hp: 72,
           maxHp: 72,
@@ -426,7 +426,7 @@
         }
 
         gameState.enemyTimer += 1;
-        if (!gameState.bossActive && gameState.enemyTimer % 44 === 0) {
+        if (!gameState.bossActive && gameState.enemyTimer % 70 === 0) {
           spawnEnemy();
         }
 
@@ -437,7 +437,7 @@
             enemy.x += enemy.drift;
             enemy.y += enemy.speed;
           } else if (enemy.pattern === "swoop") {
-            enemy.x += Math.sin((gameState.enemyTimer + enemy.phase) / 28) * enemy.amplitude + enemy.drift;
+            enemy.x += Math.sin((gameState.enemyTimer + enemy.phase) / 45) * enemy.amplitude + enemy.drift;
             enemy.y += enemy.speed;
           } else {
             enemy.angle += enemy.turn;
@@ -651,60 +651,69 @@
         ctx.save();
         ctx.translate(boss.x + boss.width / 2, boss.y + boss.height / 2);
 
-        ctx.fillStyle = "#020617";
+        // ===== 本体（黒）=====
+        ctx.fillStyle = "#2b1b1b";
         ctx.beginPath();
-        ctx.moveTo(-46, 0);
-        ctx.lineTo(-24, -22);
-        ctx.lineTo(-12, -22);
-        ctx.lineTo(-4, -32);
-        ctx.lineTo(4, -32);
-        ctx.lineTo(12, -22);
-        ctx.lineTo(24, -22);
-        ctx.lineTo(46, 0);
-        ctx.lineTo(24, 22);
-        ctx.lineTo(12, 22);
-        ctx.lineTo(4, 32);
-        ctx.lineTo(-4, 32);
-        ctx.lineTo(-12, 22);
-        ctx.lineTo(-24, 22);
+        ctx.moveTo(0, 42);      // 先端（下）
+        ctx.lineTo(48, -30);    // 右上
+        ctx.lineTo(18, -18);
+        ctx.lineTo(0, -42);     // 上
+        ctx.lineTo(-18, -18);
+        ctx.lineTo(-48, -30);   // 左上
         ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = "#1d4ed8";
-        ctx.fillRect(-30, -12, 60, 24);
-        ctx.fillStyle = "#38bdf8";
-        ctx.fillRect(-18, -8, 36, 16);
-        ctx.fillStyle = "#111827";
-        ctx.fillRect(-12, -4, 24, 8);
-
-        ctx.fillStyle = "#f59e0b";
-        ctx.fillRect(-18, -20, 10, 12);
-        ctx.fillRect(8, -20, 10, 12);
-        ctx.fillRect(-20, 8, 8, 12);
-        ctx.fillRect(12, 8, 8, 12);
-
-        ctx.fillStyle = "#f8fafc";
-        ctx.fillRect(-8, -2, 16, 4);
-        ctx.fillRect(-2, -20, 4, 16);
-        ctx.fillRect(-2, 4, 4, 16);
-
-        ctx.strokeStyle = "rgba(125, 211, 252, 0.55)";
-        ctx.lineWidth = 2;
+        // ===== 中央（赤）=====
+        ctx.fillStyle = "#8b0000";
         ctx.beginPath();
-        ctx.moveTo(-24, 0);
-        ctx.lineTo(-8, 0);
-        ctx.moveTo(8, 0);
-        ctx.lineTo(24, 0);
-        ctx.stroke();
+        ctx.moveTo(0, 28);
+        ctx.lineTo(24, -18);
+        ctx.lineTo(0, -28);
+        ctx.lineTo(-24, -18);
+        ctx.closePath();
+        ctx.fill();
+
+        // ===== コックピット =====
+        ctx.fillStyle = "#ffb347";
+        ctx.beginPath();
+        ctx.arc(0, -8, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // ===== 左翼 =====
+        ctx.fillStyle = "#5c4033";
+        ctx.beginPath();
+        ctx.moveTo(-18, -8);
+        ctx.lineTo(-58, 12);
+        ctx.lineTo(-28, 8);
+        ctx.closePath();
+        ctx.fill();
+
+        // ===== 右翼 =====
+        ctx.beginPath();
+        ctx.moveTo(18, -8);
+        ctx.lineTo(58, 12);
+        ctx.lineTo(28, 8);
+        ctx.closePath();
+        ctx.fill();
+
+        // ===== エンジン =====
+        ctx.fillStyle = "#ff4500";
+        ctx.fillRect(-16, 30, 10, 12);
+        ctx.fillRect(6, 30, 10, 12);
 
         ctx.restore();
 
-        ctx.save();
-        ctx.fillStyle = "rgba(248, 250, 252, 0.85)";
+        // ===== HPバー =====
+        ctx.fillStyle = "#444";
         ctx.fillRect(boss.x, boss.y - 16, boss.width, 8);
-        ctx.fillStyle = "#38bdf8";
-        ctx.fillRect(boss.x + 2, boss.y - 14, (boss.width - 4) * (boss.hp / boss.maxHp), 4);
-        ctx.restore();
+
+        ctx.fillStyle = "#22c55e";
+        ctx.fillRect(
+          boss.x,
+          boss.y - 16,
+          boss.width * (boss.hp / boss.maxHp),
+          8
+        );
       }
 
       function drawBullets() {
