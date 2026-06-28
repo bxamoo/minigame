@@ -281,17 +281,22 @@
       }
 
       function updateBullets() {
-        for (let i = bullets.length - 1; i >= 0; i -= 1) {
+        for (let i = bullets.length - 1; i >= 0; i--) {
           const bullet = bullets[i];
+
           bullet.x += bullet.dx;
           bullet.y += bullet.dy;
 
-          if (bullet.y + bullet.height < -10 || bullet.x < -20 || bullet.x > canvas.width + 20) {
+          if (
+            bullet.y + bullet.height < -10 ||
+            bullet.x < -20 ||
+            bullet.x > canvas.width + 20
+          ) {
             bullets.splice(i, 1);
             continue;
           }
 
-          let hitEnemy = false;
+          // ボス判定
           if (boss && gameState.bossActive) {
             if (
               bullet.x + bullet.width > boss.x &&
@@ -301,80 +306,89 @@
             ) {
               boss.hp -= bullet.damage;
               spawnExplosion(bullet.x, bullet.y, "#fbbf24");
+
               if (!bullet.pierce) {
                 bullets.splice(i, 1);
               } else {
-                bullet.piercesLeft -= 1;
+                bullet.piercesLeft--;
                 if (bullet.piercesLeft <= 0) {
                   bullets.splice(i, 1);
                 }
               }
+
               if (boss.hp <= 0) {
                 gameState.score += 2000;
                 updateHud();
-                spawnExplosion(boss.x + boss.width / 2, boss.y + boss.height / 2, "#fef3c7");
+
+                bossBullets.length = 0;   // ←追加
+
                 boss = null;
                 gameState.bossActive = false;
                 gameState.running = false;
                 gameState.won = true;
-                gameState.inputLocked = true;
-                gameState.clearAnimationTimer = 0;
                 updateStatus("ボスを撃破！ゲームクリア");
               }
+
               continue;
             }
           }
 
-          for (let j = enemies.length - 1; j >= 0; j -= 1) {
+          // 通常敵判定
+          let hitEnemy = false;
+
+          for (let j = enemies.length - 1; j >= 0; j--) {
             const enemy = enemies[j];
+
             if (
               bullet.x + bullet.width > enemy.x &&
               bullet.x < enemy.x + enemy.width &&
               bullet.y + bullet.height > enemy.y &&
               bullet.y < enemy.y + enemy.height
             ) {
-                enemy.hp -= bullet.damage;
-                if (enemy.hp <= 0) {
-                    enemies.splice(j, 1);
+              enemy.hp -= bullet.damage;
 
-                    gameState.score += 100;
-                    gameState.enemiesDefeated++;
+              spawnExplosion(bullet.x, bullet.y, "#fef08a");
 
-                    updateHud();
+              if (enemy.hp <= 0) {
+                enemies.splice(j, 1);
 
-                    spawnExplosion(
-                        enemy.x + enemy.width / 2,
-                        enemy.y + enemy.height / 2,
-                        "#fbbf24"
-                    );
+                gameState.score += 100;
+                gameState.enemiesDefeated++;
 
-                    if (Math.random() < 0.18) {
-                        const types = ["spread","pierce","life","power"];
-                        const itemType =
-                            types[Math.floor(Math.random()*types.length)];
+                updateHud();
 
-                        spawnItem(
-                            enemy.x + enemy.width / 2,
-                            enemy.y + enemy.height / 2,
-                            itemType
-                        );
-                    }
+                spawnExplosion(
+                  enemy.x + enemy.width / 2,
+                  enemy.y + enemy.height / 2,
+                  "#fbbf24"
+                );
+
+                if (Math.random() < 0.18) {
+                  const types = ["spread", "pierce", "life", "power"];
+                  spawnItem(
+                    enemy.x + enemy.width / 2,
+                    enemy.y + enemy.height / 2,
+                    types[Math.floor(Math.random() * types.length)]
+                  );
                 }
-
-                if (!bullet.pierce) {
-                    bullets.splice(i, 1);
-                } else {
-                    bullet.piercesLeft--;
-                    if (bullet.piercesLeft <= 0) {
-                        bullets.splice(i, 1);
-                    }
-                }
-
-                hitEnemy = true;
-                break;
               }
+
+              if (!bullet.pierce) {
+                bullets.splice(i, 1);
+              } else {
+                bullet.piercesLeft--;
+
+                if (bullet.piercesLeft <= 0) {
+                  bullets.splice(i, 1);
+                }
+              }
+
+              hitEnemy = true;
+              break;
             }
-            if (hitEnemy) {
+          }
+
+          if (hitEnemy) {
             continue;
           }
         }
@@ -488,9 +502,35 @@
       function updateBossBullets() {
         for (let i = bossBullets.length - 1; i >= 0; i -= 1) {
           const bullet = bossBullets[i];
+          let destroyed = false;
           bullet.x += bullet.dx;
           bullet.y += bullet.dy;
+          // プレイヤーの弾との当たり判定
+          for (let j = bullets.length - 1; j >= 0; j--) {
+            const playerBullet = bullets[j];
 
+            if (
+                playerBullet.x + playerBullet.width > bullet.x &&
+                playerBullet.x < bullet.x + bullet.width &&
+                playerBullet.y + playerBullet.height > bullet.y &&
+                playerBullet.y < bullet.y + bullet.height
+            ) {
+
+                spawnExplosion(bullet.x, bullet.y, "#93c5fd");
+
+                bossBullets.splice(i, 1);
+                destroyed = true;
+
+                if (!playerBullet.pierce) {
+                    bullets.splice(j, 1);
+                }
+
+                break;
+            }
+          }
+          if (destroyed) {
+              continue;
+          }
           if (bullet.y > canvas.height + 20 || bullet.x < -20 || bullet.x > canvas.width + 20) {
             bossBullets.splice(i, 1);
             continue;
