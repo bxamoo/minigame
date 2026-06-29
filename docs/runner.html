@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Runner Game</title><style>
+body{margin:0;background:#111827;color:#fff;font-family:sans-serif;display:flex;justify-content:center;padding:20px}
+.wrap{display:flex;gap:20px}.panel{max-width:320px}canvas{background:#87ceeb;border:2px solid #fff}.btn{padding:10px 16px;border:none;border-radius:20px;background:#38bdf8;color:#fff;font-weight:bold;cursor:pointer}
+</style></head><body><div class="wrap"><canvas id="c" width="800" height="300"></canvas><div class="panel"><h1>Night Runner</h1><p>Spaceでジャンプ！障害物を避けよう！</p><p id="s">距離:0</p><button class="btn" onclick="reset()">もう一度遊ぶ</button></div></div>
+<script>
+const c=document.getElementById("c"),x=c.getContext("2d"),S=document.getElementById("s");
+let p,o,d,v,g;
+function reset(){p={x:80,y:220,w:30,h:40};o=[];d=0;v=6;g=false}
+reset();
+onkeydown=e=>{if(e.code==="Space"&&!g&&p.y>=220)p.v=-14}
+function spawn(){if(Math.random()<0.02)o.push({x:820,w:20+Math.random()*20,h:30+Math.random()*30})}
+function loop(){
+requestAnimationFrame(loop);
+x.fillStyle="#87ceeb";x.fillRect(0,0,800,300);
+x.fillStyle="#3a5";x.fillRect(0,260,800,40);
+if(!g){d++;v+=0.0005;spawn();}
+p.v=(p.v||0)+0.7;p.y+=p.v;if(p.y>220){p.y=220;p.v=0;}
+x.fillStyle="#f90";x.fillRect(p.x,p.y,p.w,p.h);
+x.fillStyle="#444";
+o.forEach(a=>{if(!g)a.x-=v;x.fillRect(a.x,260-a.h,a.w,a.h);
+if(a.x+a.w>p.x&&a.x<p.x+p.w&&260-a.h<p.y+p.h){g=true;}
+});
+o=o.filter(a=>a.x>-50);
+S.textContent=g?"ゲームオーバー！ 距離:"+d:"距離:"+d;
+}
+loop();
+</script></body></html>
