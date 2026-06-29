@@ -71,7 +71,11 @@
               </ul>
 
             </div>
+<button class="primary-button" onclick="resetGame()">
+  もう一度遊ぶ
+</button>
 
+<br><br>
             <a class="secondary-button" href="index.html">
               トップに戻る
             </a>
@@ -291,14 +295,81 @@ function cpuMove() {
     }
   }
 
-  if (empty.length === 0) {
-    return;
+  if (empty.length === 0) return;
+
+  // 勝てるなら勝つ
+  for (const i of empty) {
+
+    board[i] = "X";
+
+    if (checkWinner("X")) {
+      draw();
+      return;
+    }
+
+    board[i] = "";
+
   }
 
+  // 相手が勝ちそうなら防ぐ
+  for (const i of empty) {
+
+    board[i] = "O";
+
+    if (checkWinner("O")) {
+
+      board[i] = "X";
+      draw();
+      return;
+
+    }
+
+    board[i] = "";
+
+  }
+
+  // 真ん中を優先
+  if (board[4] === "") {
+
+    board[4] = "X";
+    draw();
+    return;
+
+  }
+
+  // 四隅を優先
+  const corners = [0,2,6,8].filter(i => board[i] === "");
+
+  if (corners.length > 0) {
+
+    const choice =
+      corners[Math.floor(Math.random()*corners.length)];
+
+    board[choice] = "X";
+    draw();
+    return;
+
+  }
+
+  // 最後はランダム
   const choice =
-    empty[Math.floor(Math.random() * empty.length)];
+    empty[Math.floor(Math.random()*empty.length)];
 
   board[choice] = "X";
+
+  draw();
+
+}
+function resetGame() {
+
+  for (let i = 0; i < board.length; i++) {
+    board[i] = "";
+  }
+
+  gameOver = false;
+
+  statusEl.textContent = "あなたの番です";
+  resultEl.textContent = "勝敗：-";
 
   draw();
 
