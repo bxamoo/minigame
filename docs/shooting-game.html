@@ -204,40 +204,59 @@
 
 function spawnBoss(type) {
 
-    if (type === "middle") {
+    if (type === "middle1") {
 
         boss = {
-            x: canvas.width / 2 - 45,
+            x: canvas.width / 2 - 40,
             y: 70,
-            width: 90,
-            height: 60,
+            width: 80,
+            height: 55,
             vx: 2,
-            hp: 20,
-            maxHp: 20,
+            hp: 18,
+            maxHp: 18,
             attackTimer: 0,
-            type: "middle",
+            type: "middle1",
         };
 
-        updateStatus("中ボス出現！");
+        updateStatus("中ボス① 出現！");
 
-    } else {
+    }
 
-        boss = {
-            x: canvas.width / 2 - 54,
-            y: 70,
-            width: 130,
-            height: 90,
-            vx: 1.4,
-            hp: 72,
-            maxHp: 72,
-            attackTimer: 0,
-            type: "last",
+    else if(type==="middle2"){
+
+        boss={
+            x:canvas.width/2-42,
+            y:70,
+            width:85,
+            height:58,
+            vx:2.3,
+            hp:28,
+            maxHp:28,
+            attackTimer:0,
+            type:"middle2",
+        };
+
+        updateStatus("中ボス② 出現！");
+    }
+
+    else{
+
+        boss={
+            x:canvas.width/2-54,
+            y:70,
+            width:130,
+            height:90,
+            vx:1.4,
+            hp:72,
+            maxHp:72,
+            attackTimer:0,
+            type:"last",
         };
 
         updateStatus("ラスボス出現！");
     }
 
-    gameState.bossActive = true;
+    gameState.bossActive=true;
 }
 
       function spawnBossAttack() {
@@ -380,19 +399,24 @@ if (boss.hp <= 0) {
 
     bossBullets.length = 0;
 
-    // ===== 中ボス撃破 =====
-    if (boss.type === "middle") {
+    if (boss.type === "middle1") {
 
         boss = null;
         gameState.bossActive = false;
-
         gameState.stage = 2;
 
-        updateStatus("中ボス撃破！");
-
+        updateStatus("中ボス①撃破！");
     }
 
-    // ===== ラスボス撃破 =====
+    else if (boss.type === "middle2") {
+
+        boss = null;
+        gameState.bossActive = false;
+        gameState.stage = 4;
+
+        updateStatus("中ボス②撃破！");
+    }
+
     else {
 
         boss = null;
@@ -400,8 +424,6 @@ if (boss.hp <= 0) {
 
         gameState.running = false;
         gameState.won = true;
-        gameState.inputLocked = true;
-        gameState.clearAnimationTimer = 0;
 
         updateStatus("ラスボス撃破！");
     }
@@ -514,23 +536,40 @@ if (boss.hp <= 0) {
       }
 
       function updateEnemies() {
+
+// ステージ1 → 中ボス①
 if (
     gameState.stage === 0 &&
     !gameState.bossActive &&
-    gameState.enemiesDefeated >= 10
+    gameState.enemiesDefeated >= 15
 ) {
     gameState.stage = 1;
-    spawnBoss("middle");
+    spawnBoss("middle1");
     return;
 }
+
+// ステージ2 → 中ボス②
 if (
     gameState.stage === 2 &&
-    !gameState.bossActive
+    !gameState.bossActive &&
+    gameState.enemiesDefeated >= 30
 ) {
     gameState.stage = 3;
+    spawnBoss("middle2");
+    return;
+}
+
+// ステージ4 → ラスボス
+if (
+    gameState.stage === 4 &&
+    !gameState.bossActive &&
+    gameState.enemiesDefeated >= 45
+) {
+    gameState.stage = 5;
     spawnBoss("last");
     return;
 }
+
         gameState.enemyTimer += 1;
         if (!gameState.bossActive && gameState.enemyTimer % 70 === 0) {
           spawnEnemy();
