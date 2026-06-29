@@ -31,7 +31,7 @@
 
             <p class="description">
               マスをクリックして○または×を置きます。<br>
-              先に縦・横・斜めのいずれか3つを揃えた方の勝ちです。
+              先に縦・横・斜めのいずれか3つを揃えると勝ちです。
             </p>
 
 <div class="hud">
@@ -43,36 +43,47 @@
     </div>
 
     <div class="hud-stat">
-      コンピューター：×
+      相手：×
     </div>
 
   </div>
 
   <div class="hud-row">
 
+    <div class="hud-stat">
+      状態
+    </div>
+
     <div class="hud-status" id="status">
       あなたの番です
     </div>
 
+  </div>
+
+  <div class="hud-row">
+
+    <div class="hud-stat">
+      勝敗
+    </div>
+
     <div class="hud-status" id="result">
-      勝敗：-
+      -
     </div>
 
   </div>
 
 </div>
-
             <div class="shooting-controls">
 
               <h2>遊び方</h2>
 
               <ul>
-                <li>あなたは ○ です。</li>
-                <li>コンピューターは × です。</li>
+                <li>あなたは ○ で、相手は ×です。</li>
                 <li>交互にマスへ印を置きます。</li>
                 <li>縦・横・斜めのどれか1列を揃えると勝利です。</li>
                 <li>9マスすべて埋まると引き分けになります。</li>
               </ul>
+              </div>
 
 <div class="button-row">
 
