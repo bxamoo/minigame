@@ -385,4 +385,10 @@ h1 {
   #gameCanvas {
     width: min(100%, 420px);
   }
+
+  .button-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
 }
