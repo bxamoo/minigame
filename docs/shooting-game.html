@@ -421,7 +421,7 @@ if (boss.hp <= 0) {
 
         boss = null;
         gameState.bossActive = false;
-
+        player.invincible = 0;
         gameState.running = false;
         gameState.won = true;
 
@@ -780,12 +780,13 @@ if (
       }
 
       function drawPlayer() {
-        if (
-            player.invincible > 0 &&
-            Math.floor(player.invincible / 5) % 2 === 0
-        ) {
-            return;
-        }
+    if (
+        !gameState.won &&
+        player.invincible > 0 &&
+        Math.floor(player.invincible / 5) % 2 === 0
+    ) {
+        return;
+    }
         ctx.save();
         ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
         ctx.fillStyle = "#f8fafc";
