@@ -153,8 +153,18 @@
       }
 
       function spawnEnemy() {
-        const pattern = Math.random() < 0.4 ? "swoop" : Math.random() < 0.7 ? "spiral" : "straight";
-        const amplitude = 4 + Math.random() * 8;
+
+        // 出現する動きをランダムに決める
+        const patterns = [
+          "straight",
+          "zigzag",
+          "curve",
+          "slowSine",
+          "fastSine"
+        ];
+
+        const pattern =
+          patterns[Math.floor(Math.random() * patterns.length)];
         enemies.push({
           x: Math.random() * (canvas.width - 46),
           y: -30,
@@ -162,14 +172,12 @@
           height: 28,
           hp: 3,
           maxHp: 3,
-          speed: 1.0 + Math.random() * 0.8,
-          drift: (Math.random() - 0.5) * 0.2,
+          speed: 1.8 + Math.random(),
           pattern,
           phase: Math.random() * Math.PI * 2,
-          amplitude,
-          angle: Math.random() * Math.PI * 2,
-          turn: (Math.random() - 0.5) * 0.04,
-          radius: 2 + Math.random() * 8,
+          amplitude: 20 + Math.random() * 40,
+          drift: (Math.random() - 0.5) * 2,
+          angle: 0,
         });
       }
 
@@ -277,7 +285,7 @@
           player.x += player.speed;
         }
 
-        player.x = clamp(player.x, 20, canvas.width - player.width - 20);
+        player.x = clamp(player.x, 0, canvas.width - player.width);
       }
 
       function updateBullets() {
@@ -446,23 +454,29 @@
 
         for (let i = enemies.length - 1; i >= 0; i -= 1) {
           const enemy = enemies[i];
-
+          // 真っすぐ
           if (enemy.pattern === "straight") {
-            enemy.x += enemy.drift;
-            enemy.y += enemy.speed;
-          } else if (enemy.pattern === "swoop") {
-            enemy.x += Math.sin((gameState.enemyTimer + enemy.phase) / 45) * enemy.amplitude + enemy.drift;
-            enemy.y += enemy.speed;
-          } else {
-            enemy.angle += enemy.turn;
-            enemy.x += Math.sin(enemy.angle) * enemy.radius + enemy.drift;
-            enemy.y += enemy.speed * 0.7;
+              enemy.y += enemy.speed;
           }
-
-          enemy.drift *= 0.994;
-          if (enemy.x < -30 || enemy.x > canvas.width + 30) {
-            enemy.drift *= -1;
-            enemy.x = clamp(enemy.x, -20, canvas.width + 20);
+          // ジグザグ
+          else if (enemy.pattern === "zigzag") {
+              enemy.y += enemy.speed;
+              enemy.x += Math.sin(enemy.y / 20) * 3;
+          }
+          // ゆるいカーブ
+          else if (enemy.pattern === "curve") {
+              enemy.y += enemy.speed;
+              enemy.x += enemy.drift;
+          }
+          // ゆっくり波
+          else if (enemy.pattern === "slowSine") {
+              enemy.y += enemy.speed;
+              enemy.x += Math.sin(enemy.y / 50 + enemy.phase) * 2;
+          }
+          // 大きく波
+          else if (enemy.pattern === "fastSine") {
+              enemy.y += enemy.speed;
+              enemy.x += Math.sin(enemy.y / 18 + enemy.phase) * 4;
           }
 
           if (
