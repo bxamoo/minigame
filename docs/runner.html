@@ -73,9 +73,10 @@
 
           <div style="display:flex; gap:12px;">
 
-            <button
-              class="primary-button"
-              onclick="reset()">
+<button
+  class="primary-button"
+  type="button"
+  onclick="this.blur(); reset();">
               もう一度遊ぶ
             </button>
 
@@ -114,7 +115,8 @@
         x: 80,
         y: 220,
         w: 30,
-        h: 40
+        h: 40,
+        v: 0
       };
 
       o = [];
