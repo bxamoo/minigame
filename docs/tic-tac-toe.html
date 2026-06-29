@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>○×ゲーム</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <main class="game-page">
+      <section class="game-screen">
+        <div class="game-layout">
+
+          <!-- ゲーム画面 -->
+          <div class="play-panel">
+            <div class="game-shell">
+              <canvas
+                id="gameCanvas"
+                width="480"
+                height="480"
+                aria-label="○×ゲーム"
+              ></canvas>
+            </div>
+          </div>
+
+          <!-- 情報 -->
+          <div class="info-panel">
+
+            <h1>Tic Tac Toe</h1>
+
+            <p class="description">
+              マスをクリックして○または×を置きます。<br>
+              先に縦・横・斜めのいずれか3つを揃えた方の勝ちです。
+            </p>
+
+            <div class="hud">
+
+              <div class="hud-row">
+                <div class="hud-stat">
+                  <span id="player">あなた：○</span>
+                </div>
+
+                <div class="hud-status" id="status">
+                  あなたの番です
+                </div>
+              </div>
+
+              <div class="hud-row">
+                <div class="hud-stat">
+                  <span id="result">勝敗：-</span>
+                </div>
+
+                <div class="hud-status hud-status-secondary">
+                  コンピューター：×
+                </div>
+              </div>
+
+            </div>
+
+            <div class="shooting-controls">
+
+              <h2>遊び方</h2>
+
+              <ul>
+                <li>あなたは ○ です。</li>
+                <li>コンピューターは × です。</li>
+                <li>交互にマスへ印を置きます。</li>
+                <li>縦・横・斜めのどれか1列を揃えると勝利です。</li>
+                <li>9マスすべて埋まると引き分けになります。</li>
+              </ul>
+
+            </div>
+
+            <a class="secondary-button" href="index.html">
+              トップに戻る
+            </a>
+
+          </div>
+
+        </div>
+      </section>
+    </main>
+
+    <script>
+
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // ここからJavaScriptを書いていきます。
+
+    </script>
+
+  </body>
+</html>
