@@ -7,76 +7,93 @@
 
   <title>Runner Game</title>
 
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #111827;
-      color: #ffffff;
-      font-family: sans-serif;
-
-      display: flex;
-      justify-content: center;
-    }
-
-    .wrap {
-      display: flex;
-      gap: 20px;
-    }
-
-    .panel {
-      max-width: 320px;
-    }
-
-    canvas {
-      background: #87ceeb;
-      border: 2px solid #ffffff;
-    }
-
-    .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 20px;
-      background: #38bdf8;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
-
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-  <div class="wrap">
+  <main class="game-page">
 
-    <canvas
-      id="c"
-      width="800"
-      height="300">
-    </canvas>
+    <section class="game-screen">
 
-    <div class="panel">
+      <div class="game-layout">
 
-      <h1>Night Runner</h1>
+        <!-- ゲーム画面 -->
+        <div class="play-panel">
 
-      <p>
-        Spaceでジャンプ！障害物を避けよう！
-      </p>
+          <div class="game-shell">
 
-      <p id="s">
-        距離:0
-      </p>
+            <canvas
+              id="c"
+              width="480"
+              height="300">
+            </canvas>
 
-      <button
-        class="btn"
-        onclick="reset()">
-        もう一度遊ぶ
-      </button>
+          </div>
 
-    </div>
+        </div>
 
-  </div>
+        <!-- 情報 -->
+        <div class="info-panel">
+
+          <h1>Night Runner</h1>
+
+          <p class="description">
+            Spaceキーでジャンプ！<br>
+            障害物を避けてできるだけ遠くまで走ろう！
+          </p>
+
+          <div class="hud">
+
+            <div class="hud-row">
+
+              <div class="hud-stat">
+                <span id="s">距離：0</span>
+              </div>
+
+              <div class="hud-status">
+                Spaceでジャンプ
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="shooting-controls">
+
+            <h2>遊び方</h2>
+
+            <ul>
+              <li>Spaceキーでジャンプします。</li>
+              <li>障害物にぶつかるとゲームオーバーです。</li>
+              <li>遠くまで走るほどスコアが伸びます。</li>
+            </ul>
+
+          </div>
+
+          <div style="display:flex; gap:12px;">
+
+            <button
+              class="primary-button"
+              onclick="reset()">
+              もう一度遊ぶ
+            </button>
+
+            <a
+              class="secondary-button"
+              href="index.html">
+              トップに戻る
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
 
   <script>
 
@@ -140,11 +157,11 @@
 
       // 空
       x.fillStyle = "#87ceeb";
-      x.fillRect(0, 0, 800, 300);
+      x.fillRect(0, 0, 480, 300);
 
       // 地面
       x.fillStyle = "#3a5";
-      x.fillRect(0, 260, 800, 40);
+      x.fillRect(0, 260, 480, 40);
 
       // ゲーム進行
       if (!g) {
