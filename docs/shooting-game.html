@@ -140,6 +140,8 @@
         player.missileLevel = 0;
         player.piercing = false;
         player.attackPower = 1;
+        player.invincible = 0;
+        spaceHeld = false;
         resetPlayer();
         updateHud();
         updateStatus("スペースで開始");
@@ -291,6 +293,8 @@
           gameState.running = false;
           gameState.gameOver = true;
           gameState.clearAnimationTimer = 0;
+          gameState.inputLocked = true;
+          gameState.clearAnimationTimer = 0;
           updateStatus("ゲームオーバー。スペースでリセット");
         } else {
           updateStatus("被弾しました");
@@ -354,6 +358,8 @@
                 gameState.bossActive = false;
                 gameState.running = false;
                 gameState.won = true;
+                gameState.inputLocked = true; 
+                gameState.clearAnimationTimer = 0;
                 updateStatus("ボスを撃破！ゲームクリア");
               }
 
@@ -606,28 +612,40 @@
       }
 
       function update() {
-        if (gameState.won) {
-          gameState.clearAnimationTimer += 1;
-          if (gameState.inputLocked && gameState.clearAnimationTimer >= 180) {
-            gameState.inputLocked = false;
-          }
-          if (gameState.inputLocked && gameState.clearAnimationTimer % 2 === 0) {
-            for (let i = 0; i < 6; i += 1) {
-              const angle = (Math.PI * 2 * i) / 6;
-              particles.push({
-                x: canvas.width / 2,
-                y: canvas.height / 2 - 20,
-                vx: Math.cos(angle) * (1.2 + Math.random() * 2.2),
-                vy: Math.sin(angle) * (1.2 + Math.random() * 2.2),
-                life: 20 + Math.random() * 16,
-                maxLife: 36,
-                color: ["#fef3c7", "#fda4af", "#93c5fd", "#86efac"][Math.floor(Math.random() * 4)],
-              });
+        if (gameState.gameOver || gameState.won) {
+
+            gameState.clearAnimationTimer++;
+
+            if (
+                gameState.inputLocked &&
+                gameState.clearAnimationTimer >= 180
+            ) {
+                gameState.inputLocked = false;
             }
-          }
-          updateParticles();
-          updateStars();
-          return;
+
+            // クリア時だけ花火
+            if (
+                gameState.won &&
+                gameState.clearAnimationTimer % 2 === 0
+            ) {
+                for (let i = 0; i < 6; i++) {
+                    const angle = Math.PI * 2 * i / 6;
+
+                    particles.push({
+                        x: canvas.width / 2,
+                        y: canvas.height / 2 - 20,
+                        vx: Math.cos(angle) * (1.2 + Math.random() * 2.2),
+                        vy: Math.sin(angle) * (1.2 + Math.random() * 2.2),
+                        life: 20 + Math.random() * 16,
+                        maxLife: 36,
+                        color: ["#fef3c7","#fda4af","#93c5fd","#86efac"][Math.floor(Math.random()*4)]
+                    });
+                }
+            }
+
+            updateParticles();
+            updateStars();
+            return;
         }
 
         if (!gameState.running || gameState.gameOver) {
@@ -892,18 +910,12 @@
         }
 
         if (gameState.gameOver) {
-            gameState.clearAnimationTimer++;
-
-            if (
-                gameState.inputLocked &&
-                gameState.clearAnimationTimer >= 180
-            ) {
-                gameState.inputLocked = false;
-            }
-
-            updateParticles();
-            updateStars();
-            return;
+            ctx.save();
+            ctx.font = "bold 44px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#ff5555";
+            ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+            ctx.restore();
         }
 
         if (gameState.won) {
