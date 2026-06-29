@@ -84,6 +84,7 @@
         missileLevel: 0,
         piercing: false,
         attackPower: 1,
+        invincible: 0,
       };
 
       const bullets = [];
@@ -163,8 +164,24 @@
           "fastSine"
         ];
 
-        const pattern =
-          patterns[Math.floor(Math.random() * patterns.length)];
+        const r = Math.random();
+        let pattern;
+
+        if (r < 0.10) {
+            pattern = "straight";
+        }
+        else if (r < 0.40) {
+            pattern = "zigzag";
+        }
+        else if (r < 0.60) {
+            pattern = "curve";
+        }
+        else if (r < 0.80) {
+            pattern = "slowSine";
+        }
+        else {
+            pattern = "fastSine";
+        }
         enemies.push({
           x: Math.random() * (canvas.width - 46),
           y: -30,
@@ -265,12 +282,15 @@
       }
 
       function loseLife() {
+        if (player.invincible > 0) return;
         gameState.lives -= 1;
+        player.invincible = 120;
         updateHud();
         spawnExplosion(player.x + player.width / 2, player.y + player.height / 2, "#fda4af");
         if (gameState.lives <= 0) {
           gameState.running = false;
           gameState.gameOver = true;
+          gameState.clearAnimationTimer = 0;
           updateStatus("ゲームオーバー。スペースでリセット");
         } else {
           updateStatus("被弾しました");
@@ -588,7 +608,7 @@
       function update() {
         if (gameState.won) {
           gameState.clearAnimationTimer += 1;
-          if (gameState.inputLocked && gameState.clearAnimationTimer >= 120) {
+          if (gameState.inputLocked && gameState.clearAnimationTimer >= 180) {
             gameState.inputLocked = false;
           }
           if (gameState.inputLocked && gameState.clearAnimationTimer % 2 === 0) {
@@ -617,6 +637,9 @@
         }
 
         updatePlayer();
+        if (player.invincible > 0) {
+            player.invincible--;
+        }
         updateBullets();
         updateItems();
         updateEnemies();
@@ -642,6 +665,12 @@
       }
 
       function drawPlayer() {
+        if (
+            player.invincible > 0 &&
+            Math.floor(player.invincible / 5) % 2 === 0
+        ) {
+            return;
+        }
         ctx.save();
         ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
         ctx.fillStyle = "#f8fafc";
@@ -863,12 +892,18 @@
         }
 
         if (gameState.gameOver) {
-          ctx.save();
-          ctx.font = "bold 34px sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillStyle = "#fda4af";
-          ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
-          ctx.restore();
+            gameState.clearAnimationTimer++;
+
+            if (
+                gameState.inputLocked &&
+                gameState.clearAnimationTimer >= 180
+            ) {
+                gameState.inputLocked = false;
+            }
+
+            updateParticles();
+            updateStars();
+            return;
         }
 
         if (gameState.won) {
