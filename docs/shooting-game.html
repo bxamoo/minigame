@@ -209,8 +209,8 @@ function spawnBoss(type) {
         boss = {
             x: canvas.width / 2 - 40,
             y: 70,
-            width: 80,
-            height: 55,
+            width: 68,
+            height: 48,
             vx: 2,
             hp: 18,
             maxHp: 18,
@@ -227,8 +227,8 @@ function spawnBoss(type) {
         boss={
             x:canvas.width/2-42,
             y:70,
-            width:85,
-            height:58,
+            width: 68,
+            height: 48,
             vx:2.3,
             hp:28,
             maxHp:28,
@@ -242,10 +242,10 @@ function spawnBoss(type) {
     else{
 
         boss={
-            x:canvas.width/2-54,
+            x: canvas.width / 2 - 80,
             y:70,
-            width:130,
-            height:90,
+width:160,
+height:115,
             vx:1.4,
             hp:72,
             maxHp:72,
@@ -259,14 +259,21 @@ function spawnBoss(type) {
     gameState.bossActive=true;
 }
 
-      function spawnBossAttack() {
-        if (!boss) {
-          return;
-        }
+function spawnBossAttack() {
 
-        for (let i = 0; i < 7; i += 1) {
-          const angle = ((i / 6) - 0.5) * 1.1;
-          bossBullets.push({
+    if (!boss) return;
+
+    let count = 7;
+
+    if (boss.type === "middle1" || boss.type === "middle2") {
+        count = 3;
+    }
+
+    for (let i = 0; i < count; i++) {
+
+        const angle = ((i / (count - 1)) - 0.5) * 1.1;
+
+        bossBullets.push({
             x: boss.x + boss.width / 2 - 3,
             y: boss.y + boss.height - 4,
             width: 6,
@@ -274,10 +281,9 @@ function spawnBoss(type) {
             dx: Math.sin(angle) * 2.2,
             dy: 3.4 + Math.random() * 0.8,
             color: "#fb7185",
-          });
-        }
-      }
-
+        });
+    }
+}
       function spawnItem(x, y, type) {
         items.push({
           x,
@@ -424,7 +430,8 @@ if (boss.hp <= 0) {
         player.invincible = 0;
         gameState.running = false;
         gameState.won = true;
-
+gameState.inputLocked = true;
+gameState.clearAnimationTimer = 0;
         updateStatus("ラスボス撃破！");
     }
 
@@ -715,7 +722,7 @@ if (
 
             if (
                 gameState.inputLocked &&
-                gameState.clearAnimationTimer >= 180
+                gameState.clearAnimationTimer >= 120
             ) {
                 gameState.inputLocked = false;
             }
@@ -856,12 +863,12 @@ function drawBoss() {
     // 本体（灰紫）
     ctx.fillStyle = "#55464a";
     ctx.beginPath();
-    ctx.moveTo(0, 34);
-    ctx.lineTo(36, -22);
-    ctx.lineTo(14, -12);
-    ctx.lineTo(0, -34);
-    ctx.lineTo(-14, -12);
-    ctx.lineTo(-36, -22);
+ctx.moveTo(0, 28);
+ctx.lineTo(30, -18);
+ctx.lineTo(12, -10);
+ctx.lineTo(0, -28);
+ctx.lineTo(-12, -10);
+ctx.lineTo(-30, -18);
     ctx.closePath();
     ctx.fill();
 
@@ -884,23 +891,23 @@ function drawBoss() {
     // 翼
     ctx.fillStyle = "#775d4a";
     ctx.beginPath();
-    ctx.moveTo(-14, -6);
-    ctx.lineTo(-44, 10);
-    ctx.lineTo(-22, 6);
+ctx.moveTo(-12,-4);
+ctx.lineTo(-36,8);
+ctx.lineTo(-18,5);
     ctx.closePath();
     ctx.fill();
 
     ctx.beginPath();
-    ctx.moveTo(14, -6);
-    ctx.lineTo(44, 10);
-    ctx.lineTo(22, 6);
+ctx.moveTo(12,-4);
+ctx.lineTo(36,8);
+ctx.lineTo(18,5);
     ctx.closePath();
     ctx.fill();
 
     // エンジン
     ctx.fillStyle = "#ff8c42";
-    ctx.fillRect(-12, 24, 8, 10);
-    ctx.fillRect(4, 24, 8, 10);
+ctx.fillRect(-10,20,6,8);
+ctx.fillRect(4,20,6,8);
   }
 
   //=========================
@@ -935,7 +942,16 @@ function drawBoss() {
     ctx.beginPath();
     ctx.arc(0,-8,8,0,Math.PI*2);
     ctx.fill();
+// 発光コア
+ctx.fillStyle = "#ff3333";
+ctx.beginPath();
+ctx.arc(0,10,10,0,Math.PI*2);
+ctx.fill();
 
+ctx.fillStyle = "#ffd166";
+ctx.beginPath();
+ctx.arc(0,10,4,0,Math.PI*2);
+ctx.fill();
     // 左翼
     ctx.fillStyle = "#5c4033";
     ctx.beginPath();
@@ -944,7 +960,12 @@ function drawBoss() {
     ctx.lineTo(-28,8);
     ctx.closePath();
     ctx.fill();
-
+ctx.beginPath();
+ctx.moveTo(-48,-10);
+ctx.lineTo(-65,-18);
+ctx.lineTo(-55,2);
+ctx.closePath();
+ctx.fill();
     // 右翼
     ctx.beginPath();
     ctx.moveTo(18,-8);
@@ -952,11 +973,42 @@ function drawBoss() {
     ctx.lineTo(28,8);
     ctx.closePath();
     ctx.fill();
+    ctx.beginPath();
+ctx.moveTo(48,-10);
+ctx.lineTo(65,-18);
+ctx.lineTo(55,2);
+ctx.closePath();
+ctx.fill();
+    
+// 装甲ライン
+ctx.strokeStyle = "#7f1d1d";
+ctx.lineWidth = 2;
 
+ctx.beginPath();
+ctx.moveTo(0,-35);
+ctx.lineTo(0,35);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(-18,-18);
+ctx.lineTo(18,-18);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(-12,8);
+ctx.lineTo(12,8);
+ctx.stroke();
+// 副砲
+ctx.fillStyle="#555";
+
+ctx.fillRect(-36,-6,8,18);
+ctx.fillRect(28,-6,8,18);
     // エンジン
     ctx.fillStyle = "#ff4500";
-    ctx.fillRect(-16,30,10,12);
-    ctx.fillRect(6,30,10,12);
+ctx.fillRect(-28,30,8,12);
+ctx.fillRect(-10,30,8,12);
+ctx.fillRect(2,30,8,12);
+ctx.fillRect(20,30,8,12);
   }
 
   ctx.restore();
