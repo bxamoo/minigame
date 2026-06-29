@@ -86,9 +86,223 @@
 
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
+const statusEl = document.getElementById("status");
+const resultEl = document.getElementById("result");
+      const board = [
+  "", "", "",
+  "", "", "",
+  "", "", ""
+];
+let gameOver = false;
+const cellSize = 120;
+const offsetX = 60;
+const offsetY = 60;
 
-      // ここからJavaScriptを書いていきます。
+function drawBoard() {
+  // 背景
+  ctx.fillStyle = "#020617";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // 線の色
+  ctx.strokeStyle = "#f8fafc";
+  ctx.lineWidth = 6;
+
+  const size = 120;
+  const startX = 60;
+  const startY = 60;
+
+  // 縦線
+  ctx.beginPath();
+  ctx.moveTo(startX + size, startY);
+  ctx.lineTo(startX + size, startY + size * 3);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(startX + size * 2, startY);
+  ctx.lineTo(startX + size * 2, startY + size * 3);
+  ctx.stroke();
+
+  // 横線
+  ctx.beginPath();
+  ctx.moveTo(startX, startY + size);
+  ctx.lineTo(startX + size * 3, startY + size);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(startX, startY + size * 2);
+  ctx.lineTo(startX + size * 3, startY + size * 2);
+  ctx.stroke();
+}
+function drawMarks() {
+
+  ctx.lineWidth = 6;
+
+  for (let i = 0; i < 9; i++) {
+
+    const mark = board[i];
+
+    if (mark === "") continue;
+
+    const row = Math.floor(i / 3);
+    const col = i % 3;
+
+    const x = offsetX + col * cellSize;
+    const y = offsetY + row * cellSize;
+
+    if (mark === "O") {
+
+      ctx.beginPath();
+      ctx.strokeStyle = "#38bdf8";
+      ctx.arc(
+        x + cellSize / 2,
+        y + cellSize / 2,
+        35,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+
+    } else {
+
+      ctx.strokeStyle = "#f87171";
+
+      ctx.beginPath();
+      ctx.moveTo(x + 30, y + 30);
+      ctx.lineTo(x + 90, y + 90);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(x + 90, y + 30);
+      ctx.lineTo(x + 30, y + 90);
+      ctx.stroke();
+
+    }
+
+  }
+
+}
+function draw() {
+  drawBoard();
+  drawMarks();
+}
+
+canvas.addEventListener("click", (event) => {
+if (gameOver) return;
+  const rect = canvas.getBoundingClientRect();
+
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  // 盤面の外なら何もしない
+  if (
+    x < offsetX ||
+    x > offsetX + cellSize * 3 ||
+    y < offsetY ||
+    y > offsetY + cellSize * 3
+  ) {
+    return;
+  }
+
+  const col = Math.floor((x - offsetX) / cellSize);
+  const row = Math.floor((y - offsetY) / cellSize);
+
+  const index = row * 3 + col;
+
+  // すでに置いてある場所なら何もしない
+  if (board[index] !== "") {
+    return;
+  }
+
+board[index] = "O";
+
+draw();
+
+if (checkWinner("O")) {
+    gameOver = true;
+    statusEl.textContent = "ゲーム終了";
+    resultEl.textContent = "勝敗：あなたの勝ち！";
+    return;
+}
+
+if (isDraw()) {
+    gameOver = true;
+    statusEl.textContent = "ゲーム終了";
+    resultEl.textContent = "勝敗：引き分け";
+    return;
+}
+
+statusEl.textContent = "CPU思考中...";
+
+setTimeout(() => {
+
+    cpuMove();
+
+    if (checkWinner("X")) {
+        gameOver = true;
+        statusEl.textContent = "ゲーム終了";
+        resultEl.textContent = "勝敗：CPUの勝ち";
+        return;
+    }
+
+    if (isDraw()) {
+        gameOver = true;
+        statusEl.textContent = "ゲーム終了";
+        resultEl.textContent = "勝敗：引き分け";
+        return;
+    }
+
+    statusEl.textContent = "あなたの番です";
+
+},500);
+  draw();
+
+});
+
+draw();
+
+function checkWinner(mark) {
+
+  const winPatterns = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+  ];
+
+  return winPatterns.some(pattern => {
+    return pattern.every(index => board[index] === mark);
+  });
+
+}
+function isDraw() {
+  return board.every(cell => cell !== "");
+}
+function cpuMove() {
+
+  const empty = [];
+
+  for (let i = 0; i < 9; i++) {
+    if (board[i] === "") {
+      empty.push(i);
+    }
+  }
+
+  if (empty.length === 0) {
+    return;
+  }
+
+  const choice =
+    empty[Math.floor(Math.random() * empty.length)];
+
+  board[choice] = "X";
+
+  draw();
+
+}
     </script>
 
   </body>
