@@ -25,7 +25,7 @@
 
             <canvas
               id="c"
-              width="480"
+              width="520"
               height="300">
             </canvas>
 
@@ -106,6 +106,7 @@
     let d;
     let v;
     let g;
+    let started = false;
 
     function reset() {
 
@@ -120,22 +121,31 @@
       d = 0;
       v = 6;
       g = false;
+      started = false;
 
     }
 
     reset();
 
-    onkeydown = (e) => {
+onkeydown = (e) => {
 
-      if (
-        e.code === "Space" &&
-        !g &&
-        p.y >= 220
-      ) {
-        p.v = -14;
-      }
+  if (e.code !== "Space") return;
 
-    };
+  // ゲームオーバー中は何もしない
+  if (g) return;
+
+  // 最初のSpaceでスタート
+  if (!started) {
+    started = true;
+    return;
+  }
+
+  // スタート後はジャンプ
+  if (p.y >= 220) {
+    p.v = -14;
+  }
+
+};
 
     function spawn() {
 
@@ -157,25 +167,28 @@
 
       // 空
       x.fillStyle = "#87ceeb";
-      x.fillRect(0, 0, 480, 300);
+      x.fillRect(0, 0, 520, 300);
 
       // 地面
       x.fillStyle = "#3a5";
-      x.fillRect(0, 260, 480, 40);
+      x.fillRect(0, 260, 520, 40);
 
       // ゲーム進行
-      if (!g) {
+if (started && !g) {
 
-        d++;
-        v += 0.0005;
+    d++;
+    v += 0.0005;
 
-        spawn();
+    spawn();
 
-      }
-
+}
       // ジャンプ
-      p.v = (p.v || 0) + 0.7;
-      p.y += p.v;
+if (started) {
+
+    p.v = (p.v || 0) + 0.7;
+    p.y += p.v;
+
+}
 
       if (p.y > 220) {
 
@@ -198,9 +211,9 @@
 
       o.forEach(a => {
 
-        if (!g) {
-          a.x -= v;
-        }
+if (started && !g) {
+    a.x -= v;
+}
 
         x.fillRect(
           a.x,
