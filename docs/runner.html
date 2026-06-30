@@ -108,7 +108,17 @@
     let v;
     let g;
     let started = false;
+const stars = [];
 
+for (let i = 0; i < 40; i++) {
+
+  stars.push({
+    x: Math.random() * 520,
+    y: Math.random() * 150,
+    r: Math.random() * 2 + 1
+  });
+
+}
     function reset() {
 
       p = {
@@ -148,7 +158,55 @@ onkeydown = (e) => {
   }
 
 };
+function drawBackground() {
 
+  // 夜空
+  x.fillStyle = "#071126";
+  x.fillRect(0, 0, 520, 300);
+
+  // 月
+  x.beginPath();
+  x.arc(430, 55, 28, 0, Math.PI * 2);
+  x.fillStyle = "#f8f1b5";
+  x.fill();
+
+  // 星
+  x.fillStyle = "#ffffff";
+
+  stars.forEach(star => {
+
+    x.beginPath();
+    x.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+    x.fill();
+
+  });
+
+  // 山
+  x.fillStyle = "#1a2442";
+
+  x.beginPath();
+  x.moveTo(0,260);
+  x.lineTo(80,180);
+  x.lineTo(170,260);
+  x.fill();
+
+  x.beginPath();
+  x.moveTo(120,260);
+  x.lineTo(250,160);
+  x.lineTo(360,260);
+  x.fill();
+
+  x.beginPath();
+  x.moveTo(280,260);
+  x.lineTo(420,190);
+  x.lineTo(520,260);
+  x.fill();
+
+  // 地面
+  x.fillStyle = "#315d2b";
+  x.fillRect(0,260,520,40);
+
+}
     function spawn() {
 
       if (Math.random() < 0.02) {
@@ -162,18 +220,58 @@ onkeydown = (e) => {
       }
 
     }
+function drawPlayer() {
 
+  const bodyX = p.x + p.w / 2;
+  const bodyY = p.y + p.h / 2;
+
+  // 足の動き
+  const leg = Math.sin(d * 0.3) * 6;
+
+  // 体
+  x.fillStyle = "#111";
+
+  x.beginPath();
+  x.arc(bodyX, bodyY, 18, 0, Math.PI * 2);
+  x.fill();
+
+  // 目
+  x.fillStyle = "#ffffff";
+
+  x.beginPath();
+  x.arc(bodyX - 6, bodyY - 3, 2.5, 0, Math.PI * 2);
+  x.arc(bodyX + 6, bodyY - 3, 2.5, 0, Math.PI * 2);
+  x.fill();
+
+  // 黒目
+  x.fillStyle = "#000";
+
+  x.beginPath();
+  x.arc(bodyX - 6, bodyY - 3, 1, 0, Math.PI * 2);
+  x.arc(bodyX + 6, bodyY - 3, 1, 0, Math.PI * 2);
+  x.fill();
+
+  // 左足
+  x.strokeStyle = "#111";
+  x.lineWidth = 3;
+
+  x.beginPath();
+  x.moveTo(bodyX - 8, bodyY + 15);
+  x.lineTo(bodyX - 12, bodyY + 25 + leg);
+  x.stroke();
+
+  // 右足
+  x.beginPath();
+  x.moveTo(bodyX + 8, bodyY + 15);
+  x.lineTo(bodyX + 12, bodyY + 25 - leg);
+  x.stroke();
+
+}
     function loop() {
 
       requestAnimationFrame(loop);
 
-      // 空
-      x.fillStyle = "#87ceeb";
-      x.fillRect(0, 0, 520, 300);
-
-      // 地面
-      x.fillStyle = "#3a5";
-      x.fillRect(0, 260, 520, 40);
+      drawBackground();
 
       // ゲーム進行
 if (started && !g) {
@@ -200,13 +298,7 @@ if (started) {
       }
 
       // プレイヤー
-      x.fillStyle = "#f90";
-      x.fillRect(
-        p.x,
-        p.y,
-        p.w,
-        p.h
-      );
+      drawPlayer();
 
       // 障害物
       x.fillStyle = "#444";
