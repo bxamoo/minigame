@@ -223,48 +223,57 @@ function drawBackground() {
 function drawPlayer() {
 
   const bodyX = p.x + p.w / 2;
-  const bodyY = p.y + p.h / 2;
+  const wobble = Math.sin(d * 0.2) * 2;
+  const bodyY = p.y + p.h / 2 + wobble;
 
   // 足の動き
   const leg = Math.sin(d * 0.3) * 6;
 
   // 体
   x.fillStyle = "#111";
-
   x.beginPath();
   x.arc(bodyX, bodyY, 18, 0, Math.PI * 2);
   x.fill();
 
-  // 目
-  x.fillStyle = "#ffffff";
-
+  // 目（白目）
+  x.fillStyle = "#fff";
   x.beginPath();
-  x.arc(bodyX - 6, bodyY - 3, 2.5, 0, Math.PI * 2);
-  x.arc(bodyX + 6, bodyY - 3, 2.5, 0, Math.PI * 2);
+  x.arc(bodyX - 6, bodyY - 4, 4, 0, Math.PI * 2);
+  x.arc(bodyX + 6, bodyY - 4, 4, 0, Math.PI * 2);
   x.fill();
 
   // 黒目
   x.fillStyle = "#000";
-
   x.beginPath();
-  x.arc(bodyX - 6, bodyY - 3, 1, 0, Math.PI * 2);
-  x.arc(bodyX + 6, bodyY - 3, 1, 0, Math.PI * 2);
+  x.arc(bodyX - 6, bodyY - 4, 2, 0, Math.PI * 2);
+  x.arc(bodyX + 6, bodyY - 4, 2, 0, Math.PI * 2);
   x.fill();
 
   // 左足
-  x.strokeStyle = "#111";
-  x.lineWidth = 3;
-
+  x.fillStyle = "#111";
   x.beginPath();
-  x.moveTo(bodyX - 8, bodyY + 15);
-  x.lineTo(bodyX - 12, bodyY + 25 + leg);
-  x.stroke();
+  x.arc(bodyX - 10, bodyY + 22 + leg, 4, 0, Math.PI * 2);
+  x.fill();
 
   // 右足
   x.beginPath();
-  x.moveTo(bodyX + 8, bodyY + 15);
-  x.lineTo(bodyX + 12, bodyY + 25 - leg);
-  x.stroke();
+  x.arc(bodyX + 10, bodyY + 22 - leg, 4, 0, Math.PI * 2);
+  x.fill();
+
+  // 毛を描く
+  x.fillStyle = "#111"; // ← 念のため黒に固定
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI * 2 / 12) * i;
+    const mx = bodyX + Math.cos(angle) * 22;
+    const my = bodyY + Math.sin(angle) * 22;
+
+    x.beginPath();
+    x.arc(mx, my, 3, 0, Math.PI * 2);
+    x.fill();
+  }
+}
+
+
 
 }
     function loop() {
