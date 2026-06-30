@@ -223,84 +223,80 @@ function drawBackground() {
 function drawPlayer() {
 
   const bodyX = p.x + p.w / 2;
-  const wobble = Math.sin(d * 0.25) * 1.5;
+  const wobble = Math.sin(d * 0.25) * 1;
   const bodyY = p.y + p.h / 2 + wobble;
 
-  const legSwing = Math.sin(d * 0.7) * 2;
+  const legSwing = Math.sin(d * 0.7) * 1.2;
 
   //--------------------
   // 体
   //--------------------
   x.fillStyle = "#000";
   x.beginPath();
-  x.arc(bodyX, bodyY, 28, 0, Math.PI * 2);
+  x.arc(bodyX, bodyY, 11, 0, Math.PI * 2);
   x.fill();
 
   //--------------------
   // 白目
   //--------------------
   x.fillStyle = "#fff";
-
   x.beginPath();
-  x.ellipse(bodyX - 9, bodyY - 3, 9, 13, 0, 0, Math.PI * 2);
-  x.ellipse(bodyX + 9, bodyY - 3, 9, 13, 0, 0, Math.PI * 2);
+  x.ellipse(bodyX - 3.5, bodyY - 1.5, 3.5, 5, 0, 0, Math.PI * 2);
+  x.ellipse(bodyX + 3.5, bodyY - 1.5, 3.5, 5, 0, 0, Math.PI * 2);
   x.fill();
 
   //--------------------
   // 黒目
   //--------------------
   x.fillStyle = "#000";
-
   x.beginPath();
-  x.arc(bodyX - 6, bodyY - 4, 6, 0, Math.PI * 2);
-  x.arc(bodyX + 12, bodyY - 4, 6, 0, Math.PI * 2);
+  x.arc(bodyX - 2.5, bodyY - 1.5, 2.5, 0, Math.PI * 2);
+  x.arc(bodyX + 5, bodyY - 1.5, 2.5, 0, Math.PI * 2);
   x.fill();
 
   //--------------------
-  // 左足
+  // 足
   //--------------------
   x.strokeStyle = "#000";
-  x.lineWidth = 5;
+  x.lineWidth = 2.5;
 
+  // 左足
   x.beginPath();
-  x.moveTo(bodyX - 10, bodyY + 27);
-  x.lineTo(bodyX - 10 + legSwing, bodyY + 43);
+  x.moveTo(bodyX - 4, bodyY + 10);
+  x.lineTo(bodyX - 4 + legSwing, bodyY + 17);
   x.stroke();
 
-  //--------------------
   // 右足
-  //--------------------
   x.beginPath();
-  x.moveTo(bodyX + 10, bodyY + 27);
-  x.lineTo(bodyX + 10 - legSwing, bodyY + 43);
+  x.moveTo(bodyX + 4, bodyY + 10);
+  x.lineTo(bodyX + 4 - legSwing, bodyY + 17);
   x.stroke();
 
   //--------------------
-  // 左足先
+  // 足先
   //--------------------
   x.fillStyle = "#000";
 
+  // 左
   x.beginPath();
   x.ellipse(
-    bodyX - 10 + legSwing,
-    bodyY + 47,
-    10,
-    6,
+    bodyX - 4 + legSwing,
+    bodyY + 19,
+    4,
+    2.5,
     0,
     0,
     Math.PI * 2
   );
   x.fill();
 
-  //--------------------
-  // 右足先
-  //--------------------
+  // 右
   x.beginPath();
   x.ellipse(
-    bodyX + 10 - legSwing,
-    bodyY + 47,
-    10,
-    6,
+    bodyX + 4 - legSwing,
+    bodyY + 19,
+    4,
+    2.5,
     0,
     0,
     Math.PI * 2
