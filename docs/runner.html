@@ -226,16 +226,16 @@ function drawPlayer() {
   const wobble = Math.sin(d * 0.2) * 2;
   const bodyY = p.y + p.h / 2 + wobble;
 
-  // 足の動き
-  const leg = Math.sin(d * 0.3) * 6;
+  // 足の横シャカシャカ動き
+  const legSwing = Math.sin(d * 0.5) * 4; // 左右に動く量
 
-  // 体
+  // 体（丸）
   x.fillStyle = "#111";
   x.beginPath();
   x.arc(bodyX, bodyY, 18, 0, Math.PI * 2);
   x.fill();
 
-  // 目（白目）
+  // 目（白）
   x.fillStyle = "#fff";
   x.beginPath();
   x.arc(bodyX - 6, bodyY - 4, 4, 0, Math.PI * 2);
@@ -249,28 +249,16 @@ function drawPlayer() {
   x.arc(bodyX + 6, bodyY - 4, 2, 0, Math.PI * 2);
   x.fill();
 
-  // 左足
+  // 左足（体にくっつける）
   x.fillStyle = "#111";
   x.beginPath();
-  x.arc(bodyX - 10, bodyY + 22 + leg, 4, 0, Math.PI * 2);
+  x.arc(bodyX - 12 + legSwing, bodyY + 16, 5, 0, Math.PI * 2);
   x.fill();
 
-  // 右足
+  // 右足（体にくっつける）
   x.beginPath();
-  x.arc(bodyX + 10, bodyY + 22 - leg, 4, 0, Math.PI * 2);
+  x.arc(bodyX + 12 - legSwing, bodyY + 16, 5, 0, Math.PI * 2);
   x.fill();
-
-  // 毛を描く
-  x.fillStyle = "#111"; // ← 念のため黒に固定
-  for (let i = 0; i < 12; i++) {
-    const angle = (Math.PI * 2 / 12) * i;
-    const mx = bodyX + Math.cos(angle) * 22;
-    const my = bodyY + Math.sin(angle) * 22;
-
-    x.beginPath();
-    x.arc(mx, my, 3, 0, Math.PI * 2);
-    x.fill();
-  }
 }
 
     function loop() {
