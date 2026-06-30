@@ -223,11 +223,11 @@ function drawBackground() {
 function drawPlayer() {
 
   const bodyX = p.x + p.w / 2;
-  const wobble = Math.sin(d * 0.2) * 2;
+  const wobble = Math.sin(d * 0.25) * 1.5;
   const bodyY = p.y + p.h / 2 + wobble;
 
-  // 足の横シャカシャカ動き
-  const legSwing = Math.sin(d * 0.5) * 4; // 左右に動く量
+  // 足の横シャカシャカ（速く・短く）
+  const legSwing = Math.sin(d * 0.7) * 3;
 
   // 体（丸）
   x.fillStyle = "#111";
@@ -235,29 +235,29 @@ function drawPlayer() {
   x.arc(bodyX, bodyY, 18, 0, Math.PI * 2);
   x.fill();
 
-  // 目（白）
+  // 目（白・少し縦長）
   x.fillStyle = "#fff";
   x.beginPath();
-  x.arc(bodyX - 6, bodyY - 4, 4, 0, Math.PI * 2);
-  x.arc(bodyX + 6, bodyY - 4, 4, 0, Math.PI * 2);
+  x.ellipse(bodyX - 7, bodyY - 4, 4, 6, 0, 0, Math.PI * 2);
+  x.ellipse(bodyX + 7, bodyY - 4, 4, 6, 0, 0, Math.PI * 2);
   x.fill();
 
-  // 黒目
+  // 黒目（小さめ）
   x.fillStyle = "#000";
   x.beginPath();
-  x.arc(bodyX - 6, bodyY - 4, 2, 0, Math.PI * 2);
-  x.arc(bodyX + 6, bodyY - 4, 2, 0, Math.PI * 2);
+  x.arc(bodyX - 7, bodyY - 4, 2, 0, Math.PI * 2);
+  x.arc(bodyX + 7, bodyY - 4, 2, 0, Math.PI * 2);
   x.fill();
 
-  // 左足（体にくっつける）
+  // 左足（体の横から生える）
   x.fillStyle = "#111";
   x.beginPath();
-  x.arc(bodyX - 12 + legSwing, bodyY + 16, 5, 0, Math.PI * 2);
+  x.arc(bodyX - 16 + legSwing, bodyY + 4, 5, 0, Math.PI * 2);
   x.fill();
 
-  // 右足（体にくっつける）
+  // 右足（体の横から生える）
   x.beginPath();
-  x.arc(bodyX + 12 - legSwing, bodyY + 16, 5, 0, Math.PI * 2);
+  x.arc(bodyX + 16 - legSwing, bodyY + 4, 5, 0, Math.PI * 2);
   x.fill();
 }
 
