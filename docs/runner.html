@@ -51,15 +51,47 @@
                 <span id="s">距離：0</span>
               </div>
 
-              <div class="hud-status">
+              <div class="hud-status" id="status">
                 Spaceでジャンプ
+              </div>
+
+            </div>
+
+            <div class="hud-row">
+
+              <div class="hud-stat">
+                <span id="best">最高記録：0</span>
+              </div>
+
+              <div class="hud-status hud-status-secondary" id="secondary">
+                障害物を避けて距離を伸ばそう
               </div>
 
             </div>
 
           </div>
 
-          <div class="shooting-controls">
+          <div class="item-legend">
+            <h2>障害物</h2>
+            <div class="legend-item">
+              <span class="legend-icon rock"></span>
+              <div><strong>岩</strong><p>尖った岩をジャンプで避ける</p></div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-icon stump"></span>
+              <div><strong>切り株</strong><p>丸太の切り株に注意</p></div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-icon poop"></span>
+              <div><strong>うんこ</strong><p>ぶつかるとゲームオーバー</p></div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-icon valley"></span>
+              <div><strong>谷</strong><p>地面が途切れる落とし穴</p></div>
+            </div>
+          </div>
+
+          <div class="action-row">
 
             <h2>遊び方</h2>
 
@@ -71,21 +103,18 @@
 
           </div>
 
-          <div style="display:flex; gap:12px;">
-
-<button
-  class="primary-button"
-  type="button"
-  onclick="this.blur(); reset();">
+          <div class="action-row">
+            <button
+              class="primary-button"
+              type="button"
+              onclick="this.blur(); reset();">
               もう一度遊ぶ
             </button>
-
             <a
               class="secondary-button"
               href="index.html">
               トップに戻る
             </a>
-
           </div>
 
         </div>
@@ -101,6 +130,8 @@
     const c = document.getElementById("c");
     const x = c.getContext("2d");
     const S = document.getElementById("s");
+    const B = document.getElementById("best");
+    const secondaryStatus = document.getElementById("secondary");
 
     let p;
     let o;
@@ -108,8 +139,15 @@
     let v;
     let g;
     let started = false;
-const stars = [];
-
+    let gameOverTimer = 0;
+    let best = Number(localStorage.getItem("runnerBest") || 0);
+    const stars = [];
+    let bg = 0;
+    const mountains = [
+      { x1: 0, x2: 80, x3: 170, top: 180 },
+      { x1: 120, x2: 250, x3: 360, top: 160 },
+      { x1: 280, x2: 420, x3: 520, top: 190 }
+    ];
 for (let i = 0; i < 40; i++) {
 
   stars.push({
@@ -134,6 +172,9 @@ for (let i = 0; i < 40; i++) {
       v = 6;
       g = false;
       started = false;
+      gameOverTimer = 0;
+      B.textContent = "最高記録：" + best;
+      secondaryStatus.textContent = "障害物を避けて距離を伸ばそう";
 
     }
 
@@ -184,42 +225,99 @@ function drawBackground() {
   // 山
   x.fillStyle = "#1a2442";
 
-  x.beginPath();
-  x.moveTo(0,260);
-  x.lineTo(80,180);
-  x.lineTo(170,260);
-  x.fill();
+  mountains.forEach(m => {
+    const offset = (m.x1 + bg) % 520;
+    const x1 = offset;
+    const x2 = offset + (m.x2 - m.x1);
+    const x3 = offset + (m.x3 - m.x1);
 
-  x.beginPath();
-  x.moveTo(120,260);
-  x.lineTo(250,160);
-  x.lineTo(360,260);
-  x.fill();
+    x.beginPath();
+    x.moveTo(x1, 260);
+    x.lineTo(x2, m.top);
+    x.lineTo(x3, 260);
+    x.fill();
 
-  x.beginPath();
-  x.moveTo(280,260);
-  x.lineTo(420,190);
-  x.lineTo(520,260);
-  x.fill();
+    if (x3 < 520) return;
+
+    const wrap = offset - 520;
+    x.beginPath();
+    x.moveTo(wrap, 260);
+    x.lineTo(wrap + (m.x2 - m.x1), m.top);
+    x.lineTo(wrap + (m.x3 - m.x1), 260);
+    x.fill();
+  });
 
   // 地面
   x.fillStyle = "#315d2b";
-  x.fillRect(0,260,520,40);
+
+  const valleyGaps = o
+    .filter(ob => ob.type === "valley")
+    .map(ob => ({ x: ob.x, w: ob.w }))
+    .sort((a, b) => a.x - b.x);
+
+  let groundX = 0;
+  valleyGaps.forEach(gap => {
+    const gapStart = Math.max(0, gap.x);
+    const gapEnd = Math.min(520, gap.x + gap.w);
+    if (gapStart > groundX) {
+      x.fillRect(groundX, 260, gapStart - groundX, 40);
+    }
+    groundX = Math.max(groundX, gapEnd);
+  });
+
+  if (groundX < 520) {
+    x.fillRect(groundX, 260, 520 - groundX, 40);
+  }
+
+  x.fillStyle = "#1b2f45";
+  valleyGaps.forEach(gap => {
+    const gapStart = Math.max(0, gap.x);
+    const gapEnd = Math.min(520, gap.x + gap.w);
+    if (gapEnd > 0 && gapStart < 520) {
+      x.fillRect(gapStart, 260, 4, 40);
+      x.fillRect(gapEnd - 4, 260, 4, 40);
+    }
+  });
 
 }
     function spawn() {
 
-      if (Math.random() < 0.02) {
+      if (Math.random() < 0.025) {
+        const types = ["rock", "stump", "poop", "valley"];
+        const type = types[Math.floor(Math.random() * types.length)];
 
-        o.push({
-          x: 820,
-          w: 20 + Math.random() * 20,
-          h: 30 + Math.random() * 30
-        });
-
+        if (type === "valley") {
+          o.push({
+            x: 820,
+            type,
+            w: 110 + Math.random() * 40
+          });
+        } else {
+          const size = type === "rock" ? 22 + Math.random() * 16 : type === "stump" ? 18 + Math.random() * 18 : 18 + Math.random() * 12;
+          const height = type === "poop" ? 20 + Math.random() * 12 : 22 + Math.random() * 18;
+          o.push({
+            x: 820,
+            type,
+            w: size,
+            h: height
+          });
+        }
       }
 
     }
+
+function updateGameOverAnimation() {
+  if (!g) return;
+
+  gameOverTimer++;
+
+  if (gameOverTimer < 18) {
+    p.y -= 5;
+  } else if (p.y < 320) {
+    p.y += 8;
+  }
+}
+
 function drawPlayer() {
 
   const bodyX = p.x + p.w / 2;
@@ -231,7 +329,7 @@ function drawPlayer() {
   //--------------------
   // 体
   //--------------------
-  x.fillStyle = "#000";
+  x.fillStyle = g ? "#8b0000" : "#000";
   x.beginPath();
   x.arc(bodyX, bodyY, 11, 0, Math.PI * 2);
   x.fill();
@@ -255,21 +353,21 @@ function drawPlayer() {
   x.fill();
 
   //--------------------
-  // 足
+  // 足（短め）
   //--------------------
   x.strokeStyle = "#000";
   x.lineWidth = 2.5;
 
   // 左足
   x.beginPath();
-  x.moveTo(bodyX - 4, bodyY + 10);
-  x.lineTo(bodyX - 4 + legSwing, bodyY + 17);
+  x.moveTo(bodyX - 4, bodyY + 12);
+  x.lineTo(bodyX - 4 + legSwing, bodyY + 16);
   x.stroke();
 
   // 右足
   x.beginPath();
-  x.moveTo(bodyX + 4, bodyY + 10);
-  x.lineTo(bodyX + 4 - legSwing, bodyY + 17);
+  x.moveTo(bodyX + 4, bodyY + 12);
+  x.lineTo(bodyX + 4 - legSwing, bodyY + 16);
   x.stroke();
 
   //--------------------
@@ -281,7 +379,7 @@ function drawPlayer() {
   x.beginPath();
   x.ellipse(
     bodyX - 4 + legSwing,
-    bodyY + 19,
+    bodyY + 18,
     4,
     2.5,
     0,
@@ -294,7 +392,7 @@ function drawPlayer() {
   x.beginPath();
   x.ellipse(
     bodyX + 4 - legSwing,
-    bodyY + 19,
+    bodyY + 18,
     4,
     2.5,
     0,
@@ -303,7 +401,6 @@ function drawPlayer() {
   );
   x.fill();
 }
-
     function loop() {
 
       requestAnimationFrame(loop);
@@ -311,47 +408,77 @@ function drawPlayer() {
       drawBackground();
 
       // ゲーム進行
-if (started && !g) {
+      if (started && !g) {
+        d++;
+        v += 0.0005;
+        bg -= v * 0.5;
+        spawn();
+      }
 
-    d++;
-    v += 0.0005;
+      if (started) {
+        p.v = (p.v || 0) + 0.7;
+        p.y += p.v;
+      }
 
-    spawn();
+      if (g) {
+        updateGameOverAnimation();
+      }
 
-}
-      // ジャンプ
-if (started) {
-
-    p.v = (p.v || 0) + 0.7;
-    p.y += p.v;
-
-}
-
-      if (p.y > 220) {
-
+      if (p.y > 220 && !g) {
         p.y = 220;
         p.v = 0;
-
       }
 
       // プレイヤー
       drawPlayer();
 
       // 障害物
-      x.fillStyle = "#444";
-
       o.forEach(a => {
+        if (started && !g) {
+          a.x -= v;
+        }
 
-if (started && !g) {
-    a.x -= v;
-}
+        if (a.type === "valley") {
+          return;
+        }
 
-        x.fillRect(
-          a.x,
-          260 - a.h,
-          a.w,
-          a.h
-        );
+        if (a.type === "rock") {
+          x.fillStyle = "#6b7280";
+          x.beginPath();
+          x.ellipse(a.x + a.w / 2, 260 - a.h / 2, a.w / 2, a.h / 2, 0, 0, Math.PI * 2);
+          x.fill();
+          x.fillStyle = "#9ca3af";
+          x.beginPath();
+          x.arc(a.x + a.w * 0.4, 260 - a.h * 0.75, a.w * 0.15, 0, Math.PI * 2);
+          x.fill();
+        }
+
+        if (a.type === "stump") {
+          x.fillStyle = "#7c4a18";
+          x.fillRect(a.x, 260 - a.h, a.w, a.h);
+          x.fillStyle = "#a16207";
+          x.fillRect(a.x + 4, 260 - a.h, a.w - 8, 8);
+          x.strokeStyle = "#5b3415";
+          x.lineWidth = 2;
+          x.beginPath();
+          x.moveTo(a.x + 4, 260 - a.h + 4);
+          x.lineTo(a.x + a.w - 4, 260 - a.h + 4);
+          x.stroke();
+        }
+
+        if (a.type === "poop") {
+          x.fillStyle = "#8b5e34";
+          x.beginPath();
+          x.arc(a.x + a.w * 0.5, 260 - a.h + 6, a.w * 0.26, 0, Math.PI * 2);
+          x.arc(a.x + a.w * 0.42, 260 - a.h + 12, a.w * 0.18, 0, Math.PI * 2);
+          x.arc(a.x + a.w * 0.58, 260 - a.h + 18, a.w * 0.14, 0, Math.PI * 2);
+          x.fill();
+          x.fillStyle = "#4b2e16";
+          x.beginPath();
+          x.arc(a.x + a.w * 0.42, 260 - a.h + 6, a.w * 0.05, 0, Math.PI * 2);
+          x.arc(a.x + a.w * 0.56, 260 - a.h + 12, a.w * 0.05, 0, Math.PI * 2);
+          x.fill();
+        }
 
         // 当たり判定
         if (
@@ -361,19 +488,31 @@ if (started && !g) {
         ) {
           g = true;
         }
-
       });
 
-      // 画面外を削除
-      o = o.filter(a => a.x > -50);
+      if (!g) {
+        const valleyUnder = o.find(ob => ob.type === "valley" && p.x + p.w > ob.x && p.x < ob.x + ob.w && p.y >= 220);
+        if (valleyUnder) {
+          g = true;
+        }
+      }
 
-      // スコア表示
+      o = o.filter(a => a.x > -150);
+
+      if (g && gameOverTimer === 1) {
+        if (d > best) {
+          best = d;
+          localStorage.setItem("runnerBest", best);
+          B.textContent = "最高記録：" + best;
+        }
+        secondaryStatus.textContent = "ゲームオーバー！ もう一度遊んで挑戦しよう";
+      }
+
       if (g) {
         S.textContent = "ゲームオーバー！ 距離：" + d;
       } else {
         S.textContent = "距離：" + d;
       }
-
     }
 
     loop();
