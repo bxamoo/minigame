@@ -95,6 +95,10 @@ h1 {
   align-items: stretch;
 }
 
+.hud-row-single {
+  grid-template-columns: 1fr;
+}
+
 .hud-stat,
 .hud-status {
   width: 120px;
@@ -108,6 +112,11 @@ h1 {
   justify-content: center;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.hud-stat-wide {
+  width: 100%;
+  min-width: 0;
 }
 
 .hud-status {

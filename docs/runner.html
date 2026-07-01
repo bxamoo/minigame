@@ -45,14 +45,10 @@
 
           <div class="hud">
 
-            <div class="hud-row">
+            <div class="hud-row hud-row-single">
 
-              <div class="hud-stat">
+              <div class="hud-stat hud-stat-wide">
                 <span id="s">距離：0</span>
-              </div>
-
-              <div class="hud-status" id="status">
-                Spaceでジャンプ
               </div>
 
             </div>
@@ -122,13 +118,36 @@
     let gameOverTimer = 0;
     let best = Number(localStorage.getItem("runnerBest") || 0);
     const stars = [];
-    let bg = 0;
+    let backgroundOffset = 0;
+    let backgroundSceneIndex = 0;
     let spawnTimer = 0;
     let nextSpawnGap = 170;
-    const mountains = [
-      { baseX: 600, width: 150, top: 182 },
-      { baseX: 760, width: 220, top: 158 },
-      { baseX: 930, width: 180, top: 188 }
+    const backgroundScenes = [
+      [
+        { type: "mountain", x1: -40, x2: 100, x3: 220, top: 182 },
+        { type: "mountain", x1: 120, x2: 250, x3: 360, top: 158 },
+        { type: "mountain", x1: 280, x2: 430, x3: 560, top: 190 }
+      ],
+      [
+        { type: "house", x: 40, y: 215, w: 44, h: 36, roof: 16 },
+        { type: "house", x: 120, y: 222, w: 42, h: 30, roof: 14 },
+        { type: "house", x: 200, y: 214, w: 48, h: 38, roof: 16 },
+        { type: "house", x: 300, y: 224, w: 40, h: 28, roof: 14 },
+        { type: "house", x: 380, y: 216, w: 46, h: 36, roof: 16 }
+      ],
+      [
+        { type: "castle", x: 70, y: 182, w: 120, h: 78 },
+        { type: "castle", x: 210, y: 198, w: 96, h: 62 },
+        { type: "castle", x: 340, y: 188, w: 110, h: 72 }
+      ],
+      [
+        { type: "dragon", x: 80, y: 160, scale: 1 },
+        { type: "dragon", x: 260, y: 192, scale: 0.72 }
+      ],
+      [
+        { type: "ufo", x: 90, y: 120, w: 150, h: 40 },
+        { type: "ufo", x: 300, y: 148, w: 110, h: 30 }
+      ]
     ];
 for (let i = 0; i < 40; i++) {
 
@@ -163,6 +182,94 @@ for (let i = 0; i < 40; i++) {
     }
 
     reset();
+
+    function drawBackgroundScene(scene, offset) {
+      x.save();
+      x.translate(offset, 0);
+      x.fillStyle = "#1a2442";
+      x.strokeStyle = "#0f1832";
+      x.lineWidth = 2;
+
+      scene.forEach(shape => {
+        if (shape.type === "mountain") {
+          x.beginPath();
+          x.moveTo(shape.x1, 260);
+          x.lineTo(shape.x2, shape.top);
+          x.lineTo(shape.x3, 260);
+          x.closePath();
+          x.fill();
+          x.stroke();
+          return;
+        }
+
+        if (shape.type === "house") {
+          x.fillRect(shape.x, shape.y + 8, shape.w, shape.h - 8);
+          x.beginPath();
+          x.moveTo(shape.x - 6, shape.y + 8);
+          x.lineTo(shape.x + shape.w / 2, shape.y - shape.roof);
+          x.lineTo(shape.x + shape.w + 6, shape.y + 8);
+          x.closePath();
+          x.fill();
+          x.stroke();
+          x.fillRect(shape.x + 10, shape.y + 18, 8, 14);
+          x.fillRect(shape.x + 26, shape.y + 18, 8, 14);
+          return;
+        }
+
+        if (shape.type === "castle") {
+          x.fillRect(shape.x, shape.y + 20, shape.w, shape.h - 20);
+          x.fillRect(shape.x + 10, shape.y + 6, shape.w - 20, 18);
+          x.fillRect(shape.x + 20, shape.y, 20, 18);
+          x.fillRect(shape.x + 52, shape.y, 20, 18);
+          x.fillRect(shape.x + 84, shape.y, 20, 18);
+          x.fillRect(shape.x + 24, shape.y + 36, 16, 24);
+          x.fillRect(shape.x + 80, shape.y + 36, 16, 24);
+          x.strokeRect(shape.x, shape.y + 20, shape.w, shape.h - 20);
+          x.strokeRect(shape.x + 10, shape.y + 6, shape.w - 20, 18);
+          x.strokeRect(shape.x + 20, shape.y, 20, 18);
+          x.strokeRect(shape.x + 52, shape.y, 20, 18);
+          x.strokeRect(shape.x + 84, shape.y, 20, 18);
+          return;
+        }
+
+        if (shape.type === "dragon") {
+          const scale = shape.scale;
+          const bodyX = shape.x;
+          const bodyY = shape.y;
+          x.beginPath();
+          x.moveTo(bodyX + 22 * scale, bodyY + 30 * scale);
+          x.quadraticCurveTo(bodyX + 70 * scale, bodyY + 8 * scale, bodyX + 122 * scale, bodyY + 22 * scale);
+          x.quadraticCurveTo(bodyX + 140 * scale, bodyY + 28 * scale, bodyX + 122 * scale, bodyY + 46 * scale);
+          x.quadraticCurveTo(bodyX + 90 * scale, bodyY + 60 * scale, bodyX + 64 * scale, bodyY + 42 * scale);
+          x.quadraticCurveTo(bodyX + 36 * scale, bodyY + 54 * scale, bodyX + 24 * scale, bodyY + 68 * scale);
+          x.quadraticCurveTo(bodyX + 12 * scale, bodyY + 54 * scale, bodyX + 16 * scale, bodyY + 40 * scale);
+          x.quadraticCurveTo(bodyX + 6 * scale, bodyY + 32 * scale, bodyX + 22 * scale, bodyY + 30 * scale);
+          x.closePath();
+          x.fill();
+          x.stroke();
+          x.beginPath();
+          x.moveTo(bodyX + 84 * scale, bodyY + 16 * scale);
+          x.quadraticCurveTo(bodyX + 126 * scale, bodyY - 2 * scale, bodyX + 148 * scale, bodyY + 8 * scale);
+          x.quadraticCurveTo(bodyX + 126 * scale, bodyY + 24 * scale, bodyX + 104 * scale, bodyY + 28 * scale);
+          x.closePath();
+          x.fill();
+          x.stroke();
+          return;
+        }
+
+        if (shape.type === "ufo") {
+          x.fillRect(shape.x + 28, shape.y + 24, shape.w - 56, 12);
+          x.beginPath();
+          x.ellipse(shape.x + shape.w / 2, shape.y + shape.h / 2, shape.w / 2, shape.h / 2.2, 0, 0, Math.PI * 2);
+          x.fill();
+          x.stroke();
+          x.fillRect(shape.x + 48, shape.y + 18, shape.w - 96, 8);
+          x.fillRect(shape.x + 62, shape.y + 6, shape.w - 124, 14);
+        }
+      });
+
+      x.restore();
+    }
 
 document.addEventListener("keydown", (e) => {
 
@@ -209,23 +316,8 @@ function drawBackground() {
 
   });
 
-  // 山
-  x.fillStyle = "#1a2442";
-
-  mountains.forEach(m => {
-    const offset = m.baseX + bg * 0.12;
-    const x1 = offset;
-    const x2 = offset + m.width * 0.5;
-    const x3 = offset + m.width;
-
-    if (x3 < -40 || x1 > 560) return;
-
-    x.beginPath();
-    x.moveTo(x1, 260);
-    x.lineTo(x2, m.top);
-    x.lineTo(x3, 260);
-    x.fill();
-  });
+  // 背景シルエット
+  drawBackgroundScene(backgroundScenes[backgroundSceneIndex], backgroundOffset);
 
   // 地面
   x.fillStyle = "#315d2b";
@@ -247,9 +339,14 @@ function drawBackground() {
         return;
       }
 
-      const types = ["rock", "barrel", "poop"];
-      const type = types[Math.floor(Math.random() * types.length)];
+const types = [
+  "rock",
+  "poop",
+  "fire",
+  "bush"
+];
 
+const type = types[Math.floor(Math.random() * types.length)];
       let size = 22;
       let height = 24;
       let gapBonus = 0;
@@ -381,10 +478,17 @@ function drawPlayer() {
       drawBackground();
 
       // ゲーム進行
+      if (!g) {
+        backgroundOffset -= 0.35;
+        if (backgroundOffset <= -520) {
+          backgroundOffset = 520;
+          backgroundSceneIndex = (backgroundSceneIndex + 1) % backgroundScenes.length;
+        }
+      }
+
       if (started && !g) {
         d++;
         v += 0.00028;
-        bg -= v * 0.38;
         spawn();
       }
 
@@ -440,45 +544,87 @@ function drawPlayer() {
           x.fill();
         }
 
-        if (a.type === "barrel") {
-          const barrelTop = 260 - a.h;
-          x.fillStyle = "#8a4b1f";
-          x.fillRect(a.x, barrelTop, a.w, a.h);
-          x.fillStyle = "#c97b33";
-          x.fillRect(a.x + 3, barrelTop + 4, a.w - 6, a.h - 8);
-          x.fillStyle = "#70411a";
-          x.fillRect(a.x + 5, barrelTop + 6, a.w - 10, 6);
-          x.fillRect(a.x + 5, barrelTop + a.h - 13, a.w - 10, 6);
-          x.strokeStyle = "#4d2d11";
-          x.lineWidth = 2;
-          x.beginPath();
-          x.moveTo(a.x + 4, barrelTop + 8);
-          x.lineTo(a.x + a.w - 4, barrelTop + 8);
-          x.moveTo(a.x + 4, barrelTop + a.h - 8);
-          x.lineTo(a.x + a.w - 4, barrelTop + a.h - 8);
-          x.stroke();
-        }
+if (a.type === "bush") {
 
-        if (a.type === "poop") {
-          const baseX = a.x + a.w * 0.5;
-          const baseY = 260 - a.h + 6;
-          x.fillStyle = "#8c5a2b";
-          x.beginPath();
-          x.moveTo(baseX, baseY - a.h * 0.66);
-          x.bezierCurveTo(baseX + a.w * 0.42, baseY - a.h * 0.82, baseX + a.w * 0.46, baseY + a.h * 0.18, baseX + a.w * 0.18, baseY + a.h * 0.36);
-          x.bezierCurveTo(baseX - a.w * 0.06, baseY + a.h * 0.72, baseX - a.w * 0.34, baseY + a.h * 0.42, baseX - a.w * 0.28, baseY + a.h * 0.12);
-          x.bezierCurveTo(baseX - a.w * 0.28, baseY - a.h * 0.42, baseX - a.w * 0.12, baseY - a.h * 0.8, baseX, baseY - a.h * 0.66);
-          x.fill();
-          x.fillStyle = "rgba(255,255,255,0.2)";
-          x.beginPath();
-          x.arc(baseX - a.w * 0.1, baseY - a.h * 0.18, a.w * 0.1, 0, Math.PI * 2);
-          x.fill();
-          x.fillStyle = "#4b2e16";
-          x.beginPath();
-          x.arc(baseX - a.w * 0.13, baseY + a.h * 0.03, a.w * 0.04, 0, Math.PI * 2);
-          x.arc(baseX + a.w * 0.08, baseY + a.h * 0.1, a.w * 0.04, 0, Math.PI * 2);
-          x.fill();
-        }
+  const y = 260;
+
+  x.fillStyle = "#2e8b3c";
+
+  x.beginPath();
+
+  x.arc(a.x + 8, y - 10, 8, 0, Math.PI * 2);
+  x.arc(a.x + 16, y - 15, 10, 0, Math.PI * 2);
+  x.arc(a.x + 27, y - 11, 8, 0, Math.PI * 2);
+
+  x.fill();
+
+  x.fillStyle = "#49a857";
+
+  x.beginPath();
+
+  x.arc(a.x + 14, y - 16, 3, 0, Math.PI * 2);
+  x.arc(a.x + 22, y - 12, 2.5, 0, Math.PI * 2);
+
+  x.fill();
+}
+if (a.type === "poop") {
+
+  const cx = a.x + a.w / 2;
+  const y = 260;
+
+  x.strokeStyle = "#4d2a0f";
+  x.lineWidth = 5;
+  x.lineCap = "round";
+
+  x.beginPath();
+
+  // 下段
+  x.arc(cx, y - 7, 8, Math.PI * 0.15, Math.PI * 0.85, true);
+
+  // 中段
+  x.arc(cx, y - 15, 6, Math.PI * 0.15, Math.PI * 0.85, true);
+
+  // 上段
+  x.arc(cx, y - 21, 4, Math.PI * 0.15, Math.PI * 0.85, true);
+
+  // 先端
+  x.lineTo(cx + 1, y - 28);
+
+  x.stroke();
+}
+
+if (a.type === "fire") {
+
+  const y = 260;
+
+  // 木
+  x.strokeStyle = "#5d3a18";
+  x.lineWidth = 3;
+
+  x.beginPath();
+  x.moveTo(a.x + 6, y - 4);
+  x.lineTo(a.x + 18, y - 12);
+
+  x.moveTo(a.x + 18, y - 4);
+  x.lineTo(a.x + 6, y - 12);
+  x.stroke();
+
+  // 炎（外）
+  x.fillStyle = "#ff8c00";
+  x.beginPath();
+  x.moveTo(a.x + 12, y - 26);
+  x.quadraticCurveTo(a.x + 25, y - 14, a.x + 12, y - 4);
+  x.quadraticCurveTo(a.x - 1, y - 14, a.x + 12, y - 26);
+  x.fill();
+
+  // 炎（内）
+  x.fillStyle = "#ffe45c";
+  x.beginPath();
+  x.moveTo(a.x + 12, y - 20);
+  x.quadraticCurveTo(a.x + 18, y - 13, a.x + 12, y - 6);
+  x.quadraticCurveTo(a.x + 6, y - 13, a.x + 12, y - 20);
+  x.fill();
+}
 
         // 当たり判定
         if (
