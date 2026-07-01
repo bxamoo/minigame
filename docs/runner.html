@@ -216,56 +216,147 @@ for (let i = 0; i < 40; i++) {
           return;
         }
 
-        if (shape.type === "castle") {
-          x.fillRect(shape.x, shape.y + 20, shape.w, shape.h - 20);
-          x.fillRect(shape.x + 10, shape.y + 6, shape.w - 20, 18);
-          x.fillRect(shape.x + 20, shape.y, 20, 18);
-          x.fillRect(shape.x + 52, shape.y, 20, 18);
-          x.fillRect(shape.x + 84, shape.y, 20, 18);
-          x.fillRect(shape.x + 24, shape.y + 36, 16, 24);
-          x.fillRect(shape.x + 80, shape.y + 36, 16, 24);
-          x.strokeRect(shape.x, shape.y + 20, shape.w, shape.h - 20);
-          x.strokeRect(shape.x + 10, shape.y + 6, shape.w - 20, 18);
-          x.strokeRect(shape.x + 20, shape.y, 20, 18);
-          x.strokeRect(shape.x + 52, shape.y, 20, 18);
-          x.strokeRect(shape.x + 84, shape.y, 20, 18);
-          return;
-        }
+if (shape.type === "castle") {
 
-        if (shape.type === "dragon") {
-          const scale = shape.scale;
-          const bodyX = shape.x;
-          const bodyY = shape.y;
-          x.beginPath();
-          x.moveTo(bodyX + 22 * scale, bodyY + 30 * scale);
-          x.quadraticCurveTo(bodyX + 70 * scale, bodyY + 8 * scale, bodyX + 122 * scale, bodyY + 22 * scale);
-          x.quadraticCurveTo(bodyX + 140 * scale, bodyY + 28 * scale, bodyX + 122 * scale, bodyY + 46 * scale);
-          x.quadraticCurveTo(bodyX + 90 * scale, bodyY + 60 * scale, bodyX + 64 * scale, bodyY + 42 * scale);
-          x.quadraticCurveTo(bodyX + 36 * scale, bodyY + 54 * scale, bodyX + 24 * scale, bodyY + 68 * scale);
-          x.quadraticCurveTo(bodyX + 12 * scale, bodyY + 54 * scale, bodyX + 16 * scale, bodyY + 40 * scale);
-          x.quadraticCurveTo(bodyX + 6 * scale, bodyY + 32 * scale, bodyX + 22 * scale, bodyY + 30 * scale);
-          x.closePath();
-          x.fill();
-          x.stroke();
-          x.beginPath();
-          x.moveTo(bodyX + 84 * scale, bodyY + 16 * scale);
-          x.quadraticCurveTo(bodyX + 126 * scale, bodyY - 2 * scale, bodyX + 148 * scale, bodyY + 8 * scale);
-          x.quadraticCurveTo(bodyX + 126 * scale, bodyY + 24 * scale, bodyX + 104 * scale, bodyY + 28 * scale);
-          x.closePath();
-          x.fill();
-          x.stroke();
-          return;
-        }
+  x.fillStyle = "#1a2442";
 
-        if (shape.type === "ufo") {
-          x.fillRect(shape.x + 28, shape.y + 24, shape.w - 56, 12);
-          x.beginPath();
-          x.ellipse(shape.x + shape.w / 2, shape.y + shape.h / 2, shape.w / 2, shape.h / 2.2, 0, 0, Math.PI * 2);
-          x.fill();
-          x.stroke();
-          x.fillRect(shape.x + 48, shape.y + 18, shape.w - 96, 8);
-          x.fillRect(shape.x + 62, shape.y + 6, shape.w - 124, 14);
-        }
+  // 城本体
+  x.fillRect(shape.x + 20, shape.y + 30, shape.w - 40, shape.h - 30);
+
+  // 左塔
+  x.fillRect(shape.x, shape.y + 10, 24, shape.h + 10);
+
+  // 中央塔
+  x.fillRect(shape.x + shape.w / 2 - 16, shape.y - 10, 32, shape.h + 30);
+
+  // 右塔
+  x.fillRect(shape.x + shape.w - 24, shape.y + 10, 24, shape.h + 10);
+
+  // ギザギザ
+  for(let i=0;i<7;i++){
+      x.fillRect(shape.x+20+i*12,shape.y+24,6,8);
+  }
+
+  for(let i=0;i<3;i++){
+      x.fillRect(shape.x+2+i*8,shape.y+4,5,7);
+      x.fillRect(shape.x+shape.w-22+i*8,shape.y+4,5,7);
+  }
+
+  // 旗
+  x.strokeStyle="#555";
+  x.lineWidth=2;
+
+  x.beginPath();
+  x.moveTo(shape.x+shape.w/2,shape.y-10);
+  x.lineTo(shape.x+shape.w/2,shape.y-30);
+  x.stroke();
+
+  x.fillStyle="#ff4040";
+  x.beginPath();
+  x.moveTo(shape.x+shape.w/2,shape.y-30);
+  x.lineTo(shape.x+shape.w/2+16,shape.y-24);
+  x.lineTo(shape.x+shape.w/2,shape.y-18);
+  x.fill();
+}
+
+if (shape.type === "dragon") {
+
+    const s=shape.scale;
+    const X=shape.x;
+    const Y=shape.y;
+
+x.fillStyle="#334d78";
+x.strokeStyle="#0b1225";
+
+    // 胴体
+    x.beginPath();
+    x.ellipse(X+70*s,Y+40*s,40*s,14*s,0,0,Math.PI*2);
+    x.fill();
+
+    // 頭
+    x.beginPath();
+    x.arc(X+118*s,Y+35*s,12*s,0,Math.PI*2);
+    x.fill();
+
+    // 首
+    x.lineWidth=10*s;
+    x.strokeStyle="#1a2442";
+    x.beginPath();
+    x.moveTo(X+90*s,Y+38*s);
+    x.quadraticCurveTo(X+105*s,Y+20*s,X+116*s,Y+34*s);
+    x.stroke();
+
+    // 翼（左）
+    x.beginPath();
+    x.moveTo(X+55*s,Y+30*s);
+    x.lineTo(X+15*s,Y-10*s);
+    x.lineTo(X+80*s,Y+10*s);
+    x.closePath();
+    x.fill();
+
+    // 翼（右）
+    x.beginPath();
+    x.moveTo(X+78*s,Y+28*s);
+    x.lineTo(X+40*s,Y-20*s);
+    x.lineTo(X+110*s,Y+6*s);
+    x.closePath();
+    x.fill();
+
+    // 尻尾
+    x.lineWidth=6*s;
+    x.beginPath();
+    x.moveTo(X+28*s,Y+40*s);
+    x.quadraticCurveTo(X-10*s,Y+55*s,X-25*s,Y+25*s);
+    x.stroke();
+
+    // 角
+    x.beginPath();
+    x.moveTo(X+116*s,Y+20*s);
+    x.lineTo(X+122*s,Y+10*s);
+    x.lineTo(X+110*s,Y+18*s);
+    x.fill();
+
+    // 赤い目
+    x.fillStyle="#ff3030";
+    x.beginPath();
+    x.arc(X+122*s,Y+34*s,2*s,0,Math.PI*2);
+    x.fill();
+}
+if (shape.type==="ufo"){
+
+    const cx=shape.x+shape.w/2;
+
+    // 下皿
+    x.fillStyle="#26344d";
+    x.beginPath();
+    x.ellipse(cx,shape.y+26,shape.w/2,14,0,0,Math.PI*2);
+    x.fill();
+
+    // ドーム
+    x.fillStyle="#8fd8ff";
+    x.beginPath();
+    x.ellipse(cx, shape.y + 16, shape.w / 4, 12, 0, Math.PI, Math.PI * 2);
+    x.fill();
+
+    // 窓
+    x.fillStyle="#ffe97a";
+
+    for(let i=-2;i<=2;i++){
+        x.beginPath();
+        x.arc(cx+i*18,shape.y+24,3,0,Math.PI*2);
+        x.fill();
+    }
+
+    // 光線
+    x.fillStyle="rgba(255,255,180,.18)";
+    x.beginPath();
+    x.moveTo(cx-18,shape.y+38);
+    x.lineTo(cx+18,shape.y+38);
+    x.lineTo(cx+42,260);
+    x.lineTo(cx-42,260);
+    x.closePath();
+    x.fill();
+}
       });
 
       x.restore();
@@ -572,27 +663,37 @@ if (a.type === "poop") {
   const cx = a.x + a.w / 2;
   const y = 260;
 
-  x.strokeStyle = "#4d2a0f";
-  x.lineWidth = 5;
-  x.lineCap = "round";
-
-  x.beginPath();
+  x.fillStyle = "#7b4b1f";
 
   // 下段
-  x.arc(cx, y - 7, 8, Math.PI * 0.15, Math.PI * 0.85, true);
+  x.beginPath();
+  x.ellipse(cx, y - 7, 10, 5, 0, 0, Math.PI * 2);
+  x.fill();
 
   // 中段
-  x.arc(cx, y - 15, 6, Math.PI * 0.15, Math.PI * 0.85, true);
+  x.beginPath();
+  x.ellipse(cx, y - 13, 8, 4.5, 0, 0, Math.PI * 2);
+  x.fill();
 
   // 上段
-  x.arc(cx, y - 21, 4, Math.PI * 0.15, Math.PI * 0.85, true);
+  x.beginPath();
+  x.ellipse(cx, y - 18, 5, 3.5, 0, 0, Math.PI * 2);
+  x.fill();
 
   // 先端
-  x.lineTo(cx + 1, y - 28);
+  x.beginPath();
+  x.moveTo(cx, y - 25);
+  x.lineTo(cx + 2, y - 20);
+  x.lineTo(cx - 2, y - 20);
+  x.closePath();
+  x.fill();
 
-  x.stroke();
+  // ハイライト
+  x.fillStyle = "rgba(255,255,255,.18)";
+  x.beginPath();
+  x.arc(cx - 3, y - 15, 1.8, 0, Math.PI * 2);
+  x.fill();
 }
-
 if (a.type === "fire") {
 
   const y = 260;
