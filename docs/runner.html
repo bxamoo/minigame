@@ -71,26 +71,6 @@
 
           </div>
 
-          <div class="item-legend">
-            <h2>障害物</h2>
-            <div class="legend-item">
-              <span class="legend-icon rock"></span>
-              <div><strong>岩</strong><p>尖った岩をジャンプで避ける</p></div>
-            </div>
-            <div class="legend-item">
-              <span class="legend-icon stump"></span>
-              <div><strong>切り株</strong><p>丸太の切り株に注意</p></div>
-            </div>
-            <div class="legend-item">
-              <span class="legend-icon poop"></span>
-              <div><strong>うんこ</strong><p>ぶつかるとゲームオーバー</p></div>
-            </div>
-            <div class="legend-item">
-              <span class="legend-icon valley"></span>
-              <div><strong>谷</strong><p>地面が途切れる落とし穴</p></div>
-            </div>
-          </div>
-
           <div class="action-row">
 
             <h2>遊び方</h2>
@@ -143,6 +123,8 @@
     let best = Number(localStorage.getItem("runnerBest") || 0);
     const stars = [];
     let bg = 0;
+    let spawnTimer = 0;
+    let nextSpawnGap = 170;
     const mountains = [
       { baseX: 600, width: 150, top: 182 },
       { baseX: 760, width: 220, top: 158 },
@@ -169,10 +151,12 @@ for (let i = 0; i < 40; i++) {
 
       o = [];
       d = 0;
-      v = 6;
+      v = 4.8;
       g = false;
       started = false;
       gameOverTimer = 0;
+      spawnTimer = 140;
+      nextSpawnGap = 180;
       B.textContent = "最高記録：" + best;
       secondaryStatus.textContent = "障害物を避けて距離を伸ばそう";
 
@@ -198,7 +182,7 @@ document.addEventListener("keydown", (e) => {
 
   // スタート後はジャンプ
   if (p.y >= 220) {
-    p.v = -14;
+    p.v = -11.2;
   }
 
 });
@@ -245,60 +229,53 @@ function drawBackground() {
 
   // 地面
   x.fillStyle = "#315d2b";
-
-  const valleyGaps = o
-    .filter(ob => ob.type === "valley")
-    .map(ob => ({ x: ob.x, w: ob.w }))
-    .sort((a, b) => a.x - b.x);
-
-  let groundX = 0;
-  valleyGaps.forEach(gap => {
-    const gapStart = Math.max(0, gap.x);
-    const gapEnd = Math.min(520, gap.x + gap.w);
-    if (gapStart > groundX) {
-      x.fillRect(groundX, 260, gapStart - groundX, 40);
-    }
-    groundX = Math.max(groundX, gapEnd);
-  });
-
-  if (groundX < 520) {
-    x.fillRect(groundX, 260, 520 - groundX, 40);
-  }
-
+  x.fillRect(0, 260, 520, 40);
   x.fillStyle = "#1b2f45";
-  valleyGaps.forEach(gap => {
-    const gapStart = Math.max(0, gap.x);
-    const gapEnd = Math.min(520, gap.x + gap.w);
-    if (gapEnd > 0 && gapStart < 520) {
-      x.fillRect(gapStart, 260, 4, 40);
-      x.fillRect(gapEnd - 4, 260, 4, 40);
-    }
-  });
+  x.fillRect(0, 260, 520, 4);
 
 }
     function spawn() {
 
-      if (Math.random() < 0.025) {
-        const types = ["rock", "stump", "poop", "valley"];
-        const type = types[Math.floor(Math.random() * types.length)];
-
-        if (type === "valley") {
-          o.push({
-            x: 820,
-            type,
-            w: 110 + Math.random() * 40
-          });
-        } else {
-          const size = type === "rock" ? 22 + Math.random() * 16 : type === "stump" ? 18 + Math.random() * 18 : 18 + Math.random() * 12;
-          const height = type === "poop" ? 20 + Math.random() * 12 : 22 + Math.random() * 18;
-          o.push({
-            x: 820,
-            type,
-            w: size,
-            h: height
-          });
-        }
+      if (spawnTimer > 0) {
+        spawnTimer -= Math.max(1.2, v * 0.8);
+        return;
       }
+
+      const hasObstacleAhead = o.some(ob => ob.x > 220 && ob.x < 500);
+      if (hasObstacleAhead) {
+        spawnTimer = 30;
+        return;
+      }
+
+      const types = ["rock", "barrel", "poop"];
+      const type = types[Math.floor(Math.random() * types.length)];
+
+      let size = 22;
+      let height = 24;
+      let gapBonus = 0;
+
+      if (type === "rock") {
+        size = 24 + Math.random() * 12;
+        height = 24 + Math.random() * 12;
+      } else if (type === "barrel") {
+        size = 28 + Math.random() * 10;
+        height = 32 + Math.random() * 8;
+        gapBonus = 45;
+      } else {
+        size = 18 + Math.random() * 8;
+        height = 18 + Math.random() * 8;
+        gapBonus = 20;
+      }
+
+      o.push({
+        x: 820,
+        type,
+        w: size,
+        h: height
+      });
+
+      spawnTimer = nextSpawnGap + gapBonus;
+      nextSpawnGap = 155 + Math.random() * 40 + (type === "barrel" ? 25 : 0);
 
     }
 
@@ -406,13 +383,13 @@ function drawPlayer() {
       // ゲーム進行
       if (started && !g) {
         d++;
-        v += 0.0005;
-        bg -= v * 0.5;
+        v += 0.00028;
+        bg -= v * 0.38;
         spawn();
       }
 
       if (started) {
-        p.v = (p.v || 0) + 0.7;
+        p.v = (p.v || 0) + 0.58;
         p.y += p.v;
       }
 
@@ -432,10 +409,6 @@ function drawPlayer() {
       o.forEach(a => {
         if (started && !g) {
           a.x -= v;
-        }
-
-        if (a.type === "valley") {
-          return;
         }
 
         if (a.type === "rock") {
@@ -467,24 +440,22 @@ function drawPlayer() {
           x.fill();
         }
 
-        if (a.type === "stump") {
-          const stumpTop = 260 - a.h;
-          x.fillStyle = "#6d3a17";
-          x.fillRect(a.x, stumpTop, a.w, a.h);
-          x.fillStyle = "#8f531f";
-          x.fillRect(a.x + 3, stumpTop + 2, a.w - 6, a.h - 8);
-          x.fillStyle = "#4d2a10";
-          x.fillRect(a.x + 5, stumpTop + 9, a.w - 10, 4);
-          x.fillRect(a.x + 3, stumpTop + 18, a.w - 6, 3);
-          x.fillStyle = "#5c2f13";
-          x.fillRect(a.x + 7, stumpTop - 9, a.w - 14, 8);
-          x.strokeStyle = "#3c1f0b";
+        if (a.type === "barrel") {
+          const barrelTop = 260 - a.h;
+          x.fillStyle = "#8a4b1f";
+          x.fillRect(a.x, barrelTop, a.w, a.h);
+          x.fillStyle = "#c97b33";
+          x.fillRect(a.x + 3, barrelTop + 4, a.w - 6, a.h - 8);
+          x.fillStyle = "#70411a";
+          x.fillRect(a.x + 5, barrelTop + 6, a.w - 10, 6);
+          x.fillRect(a.x + 5, barrelTop + a.h - 13, a.w - 10, 6);
+          x.strokeStyle = "#4d2d11";
           x.lineWidth = 2;
           x.beginPath();
-          x.moveTo(a.x + 3, stumpTop + 8);
-          x.lineTo(a.x + a.w - 3, stumpTop + 16);
-          x.moveTo(a.x + 3, stumpTop + 22);
-          x.lineTo(a.x + a.w - 3, stumpTop + 28);
+          x.moveTo(a.x + 4, barrelTop + 8);
+          x.lineTo(a.x + a.w - 4, barrelTop + 8);
+          x.moveTo(a.x + 4, barrelTop + a.h - 8);
+          x.lineTo(a.x + a.w - 4, barrelTop + a.h - 8);
           x.stroke();
         }
 
@@ -518,13 +489,6 @@ function drawPlayer() {
           g = true;
         }
       });
-
-      if (!g) {
-        const valleyUnder = o.find(ob => ob.type === "valley" && p.x + p.w > ob.x && p.x < ob.x + ob.w && p.y >= 220);
-        if (valleyUnder) {
-          g = true;
-        }
-      }
 
       o = o.filter(a => a.x > -150);
 
