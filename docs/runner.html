@@ -144,9 +144,9 @@
     const stars = [];
     let bg = 0;
     const mountains = [
-      { x1: 0, x2: 80, x3: 170, top: 180 },
-      { x1: 120, x2: 250, x3: 360, top: 160 },
-      { x1: 280, x2: 420, x3: 520, top: 190 }
+      { baseX: 600, width: 150, top: 182 },
+      { baseX: 760, width: 220, top: 158 },
+      { baseX: 930, width: 180, top: 188 }
     ];
 for (let i = 0; i < 40; i++) {
 
@@ -180,9 +180,12 @@ for (let i = 0; i < 40; i++) {
 
     reset();
 
-onkeydown = (e) => {
+document.addEventListener("keydown", (e) => {
 
   if (e.code !== "Space") return;
+  e.preventDefault();
+
+  if (e.repeat) return;
 
   // ゲームオーバー中は何もしない
   if (g) return;
@@ -198,7 +201,7 @@ onkeydown = (e) => {
     p.v = -14;
   }
 
-};
+});
 function drawBackground() {
 
   // 夜空
@@ -226,24 +229,17 @@ function drawBackground() {
   x.fillStyle = "#1a2442";
 
   mountains.forEach(m => {
-    const offset = (m.x1 + bg) % 520;
+    const offset = m.baseX + bg * 0.12;
     const x1 = offset;
-    const x2 = offset + (m.x2 - m.x1);
-    const x3 = offset + (m.x3 - m.x1);
+    const x2 = offset + m.width * 0.5;
+    const x3 = offset + m.width;
+
+    if (x3 < -40 || x1 > 560) return;
 
     x.beginPath();
     x.moveTo(x1, 260);
     x.lineTo(x2, m.top);
     x.lineTo(x3, 260);
-    x.fill();
-
-    if (x3 < 520) return;
-
-    const wrap = offset - 520;
-    x.beginPath();
-    x.moveTo(wrap, 260);
-    x.lineTo(wrap + (m.x2 - m.x1), m.top);
-    x.lineTo(wrap + (m.x3 - m.x1), 260);
     x.fill();
   });
 
@@ -443,40 +439,73 @@ function drawPlayer() {
         }
 
         if (a.type === "rock") {
-          x.fillStyle = "#6b7280";
+          const baseY = 260 - a.h * 0.82;
+          x.fillStyle = "#6f7480";
+          x.strokeStyle = "#3f434c";
+          x.lineWidth = 2;
           x.beginPath();
-          x.ellipse(a.x + a.w / 2, 260 - a.h / 2, a.w / 2, a.h / 2, 0, 0, Math.PI * 2);
+          x.moveTo(a.x + a.w * 0.16, baseY + a.h * 0.22);
+          x.lineTo(a.x + a.w * 0.04, baseY + a.h * 0.64);
+          x.lineTo(a.x + a.w * 0.18, baseY + a.h * 0.92);
+          x.lineTo(a.x + a.w * 0.38, baseY + a.h * 0.82);
+          x.lineTo(a.x + a.w * 0.58, baseY + a.h * 0.96);
+          x.lineTo(a.x + a.w * 0.8, baseY + a.h * 0.74);
+          x.lineTo(a.x + a.w * 0.96, baseY + a.h * 0.56);
+          x.lineTo(a.x + a.w * 0.84, baseY + a.h * 0.16);
+          x.lineTo(a.x + a.w * 0.58, baseY + a.h * 0.02);
+          x.lineTo(a.x + a.w * 0.32, baseY + a.h * 0.08);
+          x.closePath();
           x.fill();
-          x.fillStyle = "#9ca3af";
+          x.stroke();
+
+          x.fillStyle = "rgba(255,255,255,0.16)";
           x.beginPath();
-          x.arc(a.x + a.w * 0.4, 260 - a.h * 0.75, a.w * 0.15, 0, Math.PI * 2);
+          x.moveTo(a.x + a.w * 0.2, baseY + a.h * 0.18);
+          x.lineTo(a.x + a.w * 0.34, baseY + a.h * 0.08);
+          x.lineTo(a.x + a.w * 0.54, baseY + a.h * 0.38);
+          x.closePath();
           x.fill();
         }
 
         if (a.type === "stump") {
-          x.fillStyle = "#7c4a18";
-          x.fillRect(a.x, 260 - a.h, a.w, a.h);
-          x.fillStyle = "#a16207";
-          x.fillRect(a.x + 4, 260 - a.h, a.w - 8, 8);
-          x.strokeStyle = "#5b3415";
+          const stumpTop = 260 - a.h;
+          x.fillStyle = "#6d3a17";
+          x.fillRect(a.x, stumpTop, a.w, a.h);
+          x.fillStyle = "#8f531f";
+          x.fillRect(a.x + 3, stumpTop + 2, a.w - 6, a.h - 8);
+          x.fillStyle = "#4d2a10";
+          x.fillRect(a.x + 5, stumpTop + 9, a.w - 10, 4);
+          x.fillRect(a.x + 3, stumpTop + 18, a.w - 6, 3);
+          x.fillStyle = "#5c2f13";
+          x.fillRect(a.x + 7, stumpTop - 9, a.w - 14, 8);
+          x.strokeStyle = "#3c1f0b";
           x.lineWidth = 2;
           x.beginPath();
-          x.moveTo(a.x + 4, 260 - a.h + 4);
-          x.lineTo(a.x + a.w - 4, 260 - a.h + 4);
+          x.moveTo(a.x + 3, stumpTop + 8);
+          x.lineTo(a.x + a.w - 3, stumpTop + 16);
+          x.moveTo(a.x + 3, stumpTop + 22);
+          x.lineTo(a.x + a.w - 3, stumpTop + 28);
           x.stroke();
         }
 
         if (a.type === "poop") {
-          x.fillStyle = "#8b5e34";
+          const baseX = a.x + a.w * 0.5;
+          const baseY = 260 - a.h + 6;
+          x.fillStyle = "#8c5a2b";
           x.beginPath();
-          x.arc(a.x + a.w * 0.5, 260 - a.h + 6, a.w * 0.26, 0, Math.PI * 2);
-          x.arc(a.x + a.w * 0.42, 260 - a.h + 12, a.w * 0.18, 0, Math.PI * 2);
-          x.arc(a.x + a.w * 0.58, 260 - a.h + 18, a.w * 0.14, 0, Math.PI * 2);
+          x.moveTo(baseX, baseY - a.h * 0.66);
+          x.bezierCurveTo(baseX + a.w * 0.42, baseY - a.h * 0.82, baseX + a.w * 0.46, baseY + a.h * 0.18, baseX + a.w * 0.18, baseY + a.h * 0.36);
+          x.bezierCurveTo(baseX - a.w * 0.06, baseY + a.h * 0.72, baseX - a.w * 0.34, baseY + a.h * 0.42, baseX - a.w * 0.28, baseY + a.h * 0.12);
+          x.bezierCurveTo(baseX - a.w * 0.28, baseY - a.h * 0.42, baseX - a.w * 0.12, baseY - a.h * 0.8, baseX, baseY - a.h * 0.66);
+          x.fill();
+          x.fillStyle = "rgba(255,255,255,0.2)";
+          x.beginPath();
+          x.arc(baseX - a.w * 0.1, baseY - a.h * 0.18, a.w * 0.1, 0, Math.PI * 2);
           x.fill();
           x.fillStyle = "#4b2e16";
           x.beginPath();
-          x.arc(a.x + a.w * 0.42, 260 - a.h + 6, a.w * 0.05, 0, Math.PI * 2);
-          x.arc(a.x + a.w * 0.56, 260 - a.h + 12, a.w * 0.05, 0, Math.PI * 2);
+          x.arc(baseX - a.w * 0.13, baseY + a.h * 0.03, a.w * 0.04, 0, Math.PI * 2);
+          x.arc(baseX + a.w * 0.08, baseY + a.h * 0.1, a.w * 0.04, 0, Math.PI * 2);
           x.fill();
         }
 
